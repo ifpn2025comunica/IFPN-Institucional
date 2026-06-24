@@ -63,7 +63,7 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>A processar...';
             
             try {
-                const response = await fetch('https://ifpn-public.onrender.com/api/newsletter/unsubscribe', {
+                const response = await fetch('https://ifpn-institucional-backend.onrender.com/api/newsletter/unsubscribe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email })

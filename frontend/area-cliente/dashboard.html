@@ -355,7 +355,7 @@
         // ========== HISTÓRICO DE QUOTAS ==========
         async function carregarHistoricoQuotas() {
             try {
-                const response = await fetch('https://ifpn-public.onrender.com/api/quotas/minhas', {
+                const response = await fetch('https://ifpn-institucional-backend.onrender.com/api/quotas/minhas', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
@@ -390,7 +390,7 @@
         // ========== MEUS EVENTOS (MODAL) ==========
         async function carregarMeusEventosModal() {
             try {
-                const response = await fetch('https://ifpn-public.onrender.com/api/eventos/meus/inscricoes', {
+                const response = await fetch('https://ifpn-institucional-backend.onrender.com/api/eventos/meus/inscricoes', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const eventos = await response.json();
@@ -437,7 +437,7 @@
         // ========== PERFIL ==========
         async function carregarDadosPerfil() {
     try {
-        const response = await fetch('https://ifpn-public.onrender.com/api/auth/perfil', {
+        const response = await fetch('https://ifpn-institucional-backend.onrender.com/api/auth/perfil', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await response.json();
@@ -516,7 +516,7 @@ document.getElementById('formEditarPerfil').addEventListener('submit', async (e)
     };
     
     try {
-        const perfilResponse = await fetch('https://ifpn-public.onrender.com/api/auth/atualizar-perfil', {
+        const perfilResponse = await fetch('https://ifpn-institucional-backend.onrender.com/api/auth/atualizar-perfil', {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -531,7 +531,7 @@ document.getElementById('formEditarPerfil').addEventListener('submit', async (e)
         }
         
         if (newPassword) {
-            const passwordResponse = await fetch('https://ifpn-public.onrender.com/api/auth/alterar-password', {
+            const passwordResponse = await fetch('https://ifpn-institucional-backend.onrender.com/api/auth/alterar-password', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -567,7 +567,7 @@ document.getElementById('formEditarPerfil').addEventListener('submit', async (e)
         // ========== QUOTAS ==========
         async function carregarQuotas() {
             try {
-                const response = await fetch('https://ifpn-public.onrender.com/api/quotas/minhas', {
+                const response = await fetch('https://ifpn-institucional-backend.onrender.com/api/quotas/minhas', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
@@ -634,7 +634,7 @@ document.getElementById('formEditarPerfil').addEventListener('submit', async (e)
         // ========== EVENTOS ==========
         async function carregarMeusEventos() {
             try {
-                const response = await fetch('https://ifpn-public.onrender.com/api/eventos/meus/inscricoes', {
+                const response = await fetch('https://ifpn-institucional-backend.onrender.com/api/eventos/meus/inscricoes', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const eventos = await response.json();
@@ -732,7 +732,7 @@ document.getElementById('formEditarPerfil').addEventListener('submit', async (e)
         async function cancelarInscricaoModal(eventoId) {
             if (!confirm('Cancelar inscrição neste evento?')) return;
             try {
-                const response = await fetch(`https://ifpn-public.onrender.com/api/eventos/${eventoId}/cancelar`, {
+                const response = await fetch(`https://ifpn-institucional-backend.onrender.com/api/eventos/${eventoId}/cancelar`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
