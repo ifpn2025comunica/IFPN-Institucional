@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notícias - IFPN</title>
+    <link rel="icon" type="image/png" href="/assets/images/imgPLF.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #423ea3 0%, #ba1239 100%);
+        }
+
+        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+
+        .category-badge {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            border: 1px solid #4946df;
+        }
+        .category-noticia { background: #e0def7; color: #4946df; }
+        .category-evento { background: #fde2e8; color: #ba1239; border-color: #ba1239; }
+        .category-comunicado { background: #fef3c7; color: #92400E; border-color: #92400E; }
+        .category-publicacao { background: #F3E8FF; color: #6B21A5; border-color: #6B21A5; }
+
+        .pag-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #4946df;
+            background-color: #ffffff;
+            color: #4946df;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        .pag-btn:hover:not(:disabled) {
+            background-color: #4946df;
+            color: #ffffff;
+        }
+        .pag-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .pag-btn.active { background-color: #4946df; color: #ffffff; }
+    </style>
+</head>
+<body class="bg-white">
+
+    <!-- HEADER (carregado automaticamente) -->
+    <div id="header-placeholder"></div>
+
+    <!-- Hero Section -->
+    <section class="max-w-7xl mx-auto text-white bg-[url('/frontend/assets/images/hero.png')] bg-cover bg-center mt-6 mb-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center" style="height: 150px;">
+                <div class="hidden md:block"></div>
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-bold leading-tight text-[#4946df] mb-6 text-right">
+                        Notícias e Atualizações
+                    </h1>
+                    <p class="text-xl mb-8 text-black text-right">
+                        Fique a par de todas as novidades do IFPN.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Barra de pesquisa e filtros -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3">
+            <div class="px-4 py-6">
+                <div class="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center">
+                    <!-- Pesquisa -->
+                    <div class="flex-1 relative">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-[#4946df]"></i>
+                        <input type="text" id="searchInput" placeholder="Pesquisar notícias..."
+                               class="w-full pl-12 pr-4 py-3 border-2 border-[#4946df] focus:outline-none focus:ring-2 focus:ring-[#ba1239]">
+                    </div>
+                    <!-- Categoria -->
+                    <select id="categoriaFilter" class="px-4 py-3 border-2 border-[#4946df] text-[#4946df] font-semibold lg:w-48 focus:outline-none focus:ring-2 focus:ring-[#ba1239]">
+                        <option value="">Todas as categorias</option>
+                        <option value="noticia">Notícias</option>
+                        <option value="evento">Eventos</option>
+                        <option value="comunicado">Comunicados</option>
+                    </select>
+                    <!-- Datas -->
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <input type="date" id="dataInicio" class="px-3 py-3 border-2 border-[#4946df] text-[#4946df] focus:outline-none focus:ring-2 focus:ring-[#ba1239]">
+                        <span class="text-[#4946df] font-semibold">a</span>
+                        <input type="date" id="dataFim" class="px-3 py-3 border-2 border-[#4946df] text-[#4946df] focus:outline-none focus:ring-2 focus:ring-[#ba1239]">
+                        <button id="limparDatas" class="px-4 py-3 bg-[#4946df] text-white hover:bg-[#ba1239] transition font-semibold" title="Limpar filtro de datas">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3"></div>
+
+    <!-- Notícias em destaque -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex text-left mb-3 w-full px-4 py-2 border-b-4 border-[#4946df] items-center gap-3">
+                <i class="fas fa-star text-3xl text-[#ba1239]"></i>
+                <h1 class="text-5xl font-bold text-[#4946df] pt-5">Em Destaque</h1>
+            </div>
+            <div id="destaquesContainer" class="grid md:grid-cols-3">
+                <div class="col-span-3 text-center py-8 text-[#4946df]">
+                    <i class="fas fa-spinner fa-spin text-2xl"></i> Carregando...
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mt-16 mb-3"></div>
+    <div class="max-w-7xl mx-auto overflow-hidden mt-10 mb-10" style="height: 100px;">
+        <img src="/frontend/assets/images/separador-01.png"
+             alt=""
+             class="w-full h-full object-cover object-center">
+    </div>
+
+    <!-- Lista de notícias -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex text-left mb-3 w-full px-4 py-2 border-b-4 border-[#4946df]">
+                <h1 class="text-5xl font-bold text-[#4946df] pt-5">Todas as Notícias</h1>
+            </div>
+            <div id="noticiasGrid" class="grid md:grid-cols-2 lg:grid-cols-3">
+                <div class="col-span-3 text-center py-8 text-[#4946df]">
+                    <i class="fas fa-spinner fa-spin text-2xl"></i> Carregando...
+                </div>
+            </div>
+            <div id="pagination" class="flex justify-center gap-2 flex-wrap py-8"></div>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3"></div>
+    <div class="max-w-7xl mx-auto overflow-hidden mt-10 mb-10" style="height: 100px;">
+        <img src="/frontend/assets/images/separador-01.png"
+             alt=""
+             class="w-full h-full object-cover object-center">
+    </div>
+
+    <!-- Newsletter Section (estilo index) -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="text-left text-5xl font-bold text-white bg-[#4946df] px-4 pb-1 pt-8">
+                <h2 class="text-4xl font-bold text-white mb-4">Receba as nossas novidades</h2>
+            </div>
+            <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mt-1"></div>
+            <form id="newsletterForm" class="max-w-7xl mx-auto">
+                <div class="flex flex-col sm:flex-row px-4 md:px-40">
+                    <input type="email" id="newsletterEmail"
+                           placeholder="O seu email *"
+                           class="flex-1 px-4 py-8 mb-1 mt-1 border-l-2 border-[#4946df] focus:outline-none focus:ring-2 focus:ring-white"
+                           required>
+                    <input type="text" id="newsletterNome"
+                           placeholder="O seu nome"
+                           class="flex-1 px-4 py-8 mb-1 mt-1 border-l-2 border-r-2 border-[#4946df] focus:outline-none focus:ring-2 focus:ring-white">
+                </div>
+                <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-1"></div>
+                <div class="bg-white/10">
+                    <p class="text-center text-2xl font-bold text-[#4946df] p-2">Receber notificações sobre:</p>
+                    <div class="max-w-7xl mx-auto border-t border-[#4946df] mb-1"></div>
+                    <div class="flex flex-wrap gap-6 md:gap-12 justify-center mb-2 w-full px-4 md:px-10">
+                        <label class="text-xl p-4 md:p-6 relative flex items-center gap-2 text-[#4946df] cursor-pointer bg-white">
+                            <input type="checkbox" value="eventos" class="categoria-checkbox w-6 h-6 rounded">
+                            <span>Eventos</span><i class="fas fa-calendar mr-2"></i>
+                        </label>
+                        <label class="text-xl p-4 md:p-6 relative flex items-center gap-2 text-[#4946df] cursor-pointer bg-white">
+                            <input type="checkbox" value="noticias" class="categoria-checkbox w-6 h-6 rounded">
+                            <span>Notícias</span><i class="fas fa-newspaper mr-2"></i>
+                        </label>
+                        <label class="text-xl p-4 md:p-6 relative flex items-center gap-2 text-[#4946df] cursor-pointer bg-white">
+                            <input type="checkbox" value="todos" id="categoriaTodos" class="w-6 h-6 rounded">
+                            <span>Todas</span><i class="fas fa-star mr-2"></i>
+                        </label>
+                    </div>
+                </div>
+                <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-1"></div>
+                <button type="submit"
+                        class="text-[#4946df] px-6 p-2 text-xl font-semibold hover:bg-[#ba1239] hover:text-white transition">
+                    <i class="fas fa-paper-plane mr-2"></i>Subscrever
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto border-t-2 border-[#4946df] mt-1 mb-1"></div>
+    <div class="max-w-7xl mx-auto overflow-hidden mt-10 mb-10" style="height: 100px;">
+        <img src="/frontend/assets/images/separador-01.png"
+             alt=""
+             class="w-full h-full object-cover object-center">
+    </div>
+
+    <!-- Modal de detalhes -->
+    <div id="noticiaModal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white max-w-3xl w-full max-h-[90vh] overflow-y-auto border-2 border-[#4946df]">
+            <div class="p-6">
+                <div class="flex justify-between items-start mb-4 border-b-4 border-[#4946df] pb-3">
+                    <h2 id="modalTitulo" class="text-2xl font-bold text-[#4946df]">-</h2>
+                    <button onclick="fecharModal()" class="text-[#4946df] hover:text-[#ba1239]">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                <div id="modalData" class="text-[#ba1239] text-sm font-semibold mb-2"></div>
+                <div id="modalImagem" class="mb-4 hidden"><img src="" class="w-full h-64 object-cover"></div>
+                <div id="modalMultimedia" class="hidden"></div>
+                <div id="modalSubtitulo" class="text-black text-lg italic mb-4"></div>
+                <div id="modalConteudo" class="prose max-w-none text-black"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div id="footer-placeholder"></div>
+
+    <script src="/frontend/js/include.js"></script>
+    <script>
+        const API_URL = 'https://ifpn-public.onrender.com/api';
+        let paginaAtual = 1;
+        let totalPaginas = 1;
+
+        function construirURL() {
+            const search = document.getElementById('searchInput').value;
+            const categoria = document.getElementById('categoriaFilter').value;
+            const dataInicio = document.getElementById('dataInicio').value;
+            const dataFim = document.getElementById('dataFim').value;
+
+            let url = `${API_URL}/noticias?page=${paginaAtual}&limit=6`;
+            if (search) url += `&search=${encodeURIComponent(search)}`;
+            if (categoria) url += `&categoria=${categoria}`;
+            if (dataInicio) url += `&data_inicio_gte=${dataInicio}`;
+            if (dataFim) url += `&data_inicio_lte=${dataFim}`;
+            return url;
+        }
+
+        async function carregarNoticias() {
+            const url = construirURL();
+
+            try {
+                const resp = await fetch(url);
+                const data = await resp.json();
+
+                const grid = document.getElementById('noticiasGrid');
+                if (data.noticias.length === 0) {
+                    grid.innerHTML = '<div class="col-span-3 text-center py-12 text-[#4946df] border-2 border-[#4946df] bg-[#e0def7]"><i class="fas fa-newspaper text-3xl mb-2"></i><p class="text-lg font-semibold">Nenhuma notícia encontrada</p></div>';
+                } else {
+                    grid.innerHTML = data.noticias.map(n => `
+                        <div class="bg-white border-2 border-[#4946df] overflow-hidden card-hover cursor-pointer" onclick="abrirNoticia('${n._id}')">
+                            ${n.imagem_destaque ? `<img src="${n.imagem_destaque}" class="w-full h-48 object-cover">` :
+                                `<div class="w-full h-48 hero-gradient flex items-center justify-center">
+                                    <i class="fas fa-newspaper text-white text-4xl"></i>
+                                </div>`}
+                            <div class="p-5">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="category-badge category-${n.categorias?.[0] || 'noticia'}">${n.categorias?.[0] || 'Notícia'}</span>
+                                    <span class="text-xs text-[#ba1239] font-semibold">${new Date(n.data_publicacao).toLocaleDateString('pt-PT')}</span>
+                                </div>
+                                <h3 class="font-bold text-xl mb-2 text-[#4946df]">${n.titulo}</h3>
+                                <p class="text-black text-sm">${n.subtitulo || n.conteudo?.substring(0, 100)}...</p>
+                                <div class="mt-4 text-[#ba1239] text-sm font-semibold">Ler mais →</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                totalPaginas = data.paginacao.totalPaginas;
+                renderizarPaginacao();
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('noticiasGrid').innerHTML = '<div class="col-span-3 text-center text-[#ba1239] py-8 border-2 border-[#ba1239]"><i class="fas fa-exclamation-circle text-2xl mb-2"></i><p>Erro ao carregar notícias</p></div>';
+            }
+        }
+
+        async function carregarDestaques() {
+            try {
+                const resp = await fetch(`${API_URL}/noticias/destaques/lista`);
+                const destaques = await resp.json();
+
+                const container = document.getElementById('destaquesContainer');
+                if (destaques.length === 0) {
+                    container.innerHTML = '<div class="col-span-3 text-center text-[#4946df] py-8">Nenhum destaque no momento</div>';
+                } else {
+                    container.innerHTML = destaques.map(n => `
+                        <div class="bg-white border-2 border-[#4946df] overflow-hidden card-hover cursor-pointer" onclick="abrirNoticia('${n._id}')">
+                            ${n.imagem_destaque ? `<img src="${n.imagem_destaque}" class="w-full h-48 object-cover">` :
+                                `<div class="w-full h-48 hero-gradient flex items-center justify-center"><i class="fas fa-star text-white text-4xl"></i></div>`}
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg mb-2 text-[#4946df]">${n.titulo}</h3>
+                                <p class="text-black text-sm">${n.subtitulo || ''}</p>
+                                <div class="mt-3 text-[#ba1239] text-sm font-semibold">Ler mais →</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function abrirNoticia(id) {
+            try {
+                const resp = await fetch(`${API_URL}/noticias/${id}`);
+                const n = await resp.json();
+
+                document.getElementById('modalTitulo').textContent = n.titulo;
+                document.getElementById('modalData').innerHTML = `<i class="far fa-calendar mr-1"></i>${new Date(n.data_publicacao).toLocaleDateString('pt-PT')}`;
+                document.getElementById('modalSubtitulo').textContent = n.subtitulo || '';
+                document.getElementById('modalConteudo').innerHTML = n.conteudo;
+
+                const imgDiv = document.getElementById('modalImagem');
+                if (n.imagem_destaque) {
+                    imgDiv.querySelector('img').src = n.imagem_destaque;
+                    imgDiv.classList.remove('hidden');
+                } else {
+                    imgDiv.classList.add('hidden');
+                }
+
+                const multimediaDiv = document.getElementById('modalMultimedia');
+                if (n.multimedia && n.multimedia.url && n.multimedia.url.trim() !== '') {
+                    const tipo = n.multimedia.tipo || 'link';
+                    let icone = '🔗';
+                    let texto = 'Ver conteúdo';
+                    if (tipo === 'audio') icone = '🎵';
+                    if (tipo === 'video') icone = '📺';
+                    multimediaDiv.innerHTML = `
+                        <div class="bg-[#e0def7] border-2 border-[#4946df] p-4 my-4">
+                            <div class="flex items-center mb-2">
+                                <span class="text-xl mr-2">${icone}</span>
+                                <h4 class="font-semibold text-[#4946df]">${n.multimedia.titulo || 'Conteúdo Multimédia'}</h4>
+                            </div>
+                            ${n.multimedia.descricao ? `<p class="text-sm text-black mb-3">${n.multimedia.descricao}</p>` : ''}
+                            <a href="${n.multimedia.url}" target="_blank" class="inline-flex items-center gap-2 text-[#ba1239] hover:text-[#4946df] font-semibold">${texto} <i class="fas fa-external-link-alt text-sm"></i></a>
+                        </div>
+                    `;
+                    multimediaDiv.classList.remove('hidden');
+                } else {
+                    multimediaDiv.classList.add('hidden');
+                }
+
+                document.getElementById('noticiaModal').classList.remove('hidden');
+                document.getElementById('noticiaModal').classList.add('flex');
+            } catch (err) {
+                console.error('Erro:', err);
+                alert('Erro ao carregar notícia');
+            }
+        }
+
+        function fecharModal() {
+            document.getElementById('noticiaModal').classList.add('hidden');
+            document.getElementById('noticiaModal').classList.remove('flex');
+        }
+
+        function renderizarPaginacao() {
+            const pagination = document.getElementById('pagination');
+            let html = '';
+            html += `<button class="pag-btn" ${paginaAtual === 1 ? 'disabled' : ''} onclick="mudarPagina(${paginaAtual - 1})"><i class="fas fa-chevron-left"></i></button>`;
+            for (let i = 1; i <= totalPaginas; i++) {
+                if (i === 1 || i === totalPaginas || (i >= paginaAtual - 2 && i <= paginaAtual + 2)) {
+                    html += `<button class="pag-btn ${i === paginaAtual ? 'active' : ''}" onclick="mudarPagina(${i})">${i}</button>`;
+                } else if (i === paginaAtual - 3 || i === paginaAtual + 3) {
+                    html += `<span class="px-2 text-[#4946df]">...</span>`;
+                }
+            }
+            html += `<button class="pag-btn" ${paginaAtual === totalPaginas ? 'disabled' : ''} onclick="mudarPagina(${paginaAtual + 1})"><i class="fas fa-chevron-right"></i></button>`;
+            pagination.innerHTML = html;
+        }
+
+        function mudarPagina(pagina) {
+            if (pagina < 1 || pagina > totalPaginas) return;
+            paginaAtual = pagina;
+            carregarNoticias();
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', () => { paginaAtual = 1; carregarNoticias(); });
+        document.getElementById('categoriaFilter').addEventListener('change', () => { paginaAtual = 1; carregarNoticias(); });
+        document.getElementById('dataInicio').addEventListener('change', () => { paginaAtual = 1; carregarNoticias(); });
+        document.getElementById('dataFim').addEventListener('change', () => { paginaAtual = 1; carregarNoticias(); });
+        document.getElementById('limparDatas').addEventListener('click', () => {
+            document.getElementById('dataInicio').value = '';
+            document.getElementById('dataFim').value = '';
+            paginaAtual = 1;
+            carregarNoticias();
+        });
+
+        document.getElementById('noticiaModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('noticiaModal')) fecharModal();
+        });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModal(); });
+
+        carregarNoticias();
+        carregarDestaques();
+
+        // Newsletter
+        document.getElementById('categoriaTodos')?.addEventListener('change', function(e) {
+            document.querySelectorAll('.categoria-checkbox').forEach(cb => {
+                if (cb.id !== 'categoriaTodos') cb.checked = e.target.checked;
+            });
+        });
+        document.getElementById('newsletterForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('newsletterEmail').value;
+            const nome = document.getElementById('newsletterNome').value;
+            const categorias = Array.from(document.querySelectorAll('.categoria-checkbox:checked')).map(cb => cb.value);
+            if (categorias.length === 0) {
+                alert('Selecione pelo menos uma categoria');
+                return;
+            }
+            try {
+                const response = await fetch('https://ifpn-public.onrender.com/api/newsletter/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, nome, categorias })
+                });
+                if (response.ok) {
+                    alert('Inscrição realizada com sucesso!');
+                    document.getElementById('newsletterForm').reset();
+                } else {
+                    alert('Erro ao subscrever');
+                }
+            } catch (error) {
+                alert('Erro ao subscrever');
+            }
+        });
+    </script>
+</body>
+</html>

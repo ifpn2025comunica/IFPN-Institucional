@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - IFPN</title>
+    <link rel="icon" type="image/png" href="/assets/images/imgPLF.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .hover-card { transition: all 0.3s ease; }
+        .hover-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .event-badge-workshop { background: #DBEAFE; color: #1E40AF; }
+        .event-badge-conferencia { background: #D1FAE5; color: #065F46; }
+        .event-badge-reuniao { background: #FEF3C7; color: #92400E; }
+        .event-badge-cultural { background: #F3E8FF; color: #6B21A5; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="/frontend/index.html" class="flex items-center">
+                        <img src="/frontend/assets/images/logo.png" alt="Logo IFPN" class="h-12 w-auto">
+                    </a>
+                    <div class="h-8 w-px bg-gray-300"></div>
+                    <span class="font-semibold text-gray-700">Área do Associado</span>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500" id="associadoTipo">Associado</p>
+                        <p class="font-medium text-gray-800" id="associadoNome">Carregando...</p>
+                    </div>
+                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-circle text-indigo-600 text-xl"></i>
+                    </div>
+                    <button onclick="logout()" class="text-gray-400 hover:text-red-500 transition">
+                        <i class="fas fa-sign-out-alt text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Welcome Banner -->
+        <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 rounded-2xl shadow-xl p-6 text-white mb-8">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold mb-2">Olá, <span id="welcomeNome">Associado</span>! 👋</h1>
+                    <p class="text-indigo-100">Número de Sócio: <span id="numeroSocio" class="font-mono">IFPN-2024-XXX</span></p>
+                    <p class="text-indigo-100 text-sm mt-1" id="tipoAssociadoMsg"></p>
+                </div>
+                <div class="hidden md:block">
+                    <i class="fas fa-id-card text-6xl text-indigo-300 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Total Quotas</p>
+                        <p class="text-2xl font-bold text-gray-800" id="totalQuotas">0</p>
+                    </div>
+                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-calendar-check text-indigo-600 text-lg"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Quotas Pagas</p>
+                        <p class="text-2xl font-bold text-green-600" id="quotasPagas">0</p>
+                    </div>
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600 text-lg"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Quotas Pendentes</p>
+                        <p class="text-2xl font-bold text-red-600" id="quotasPendentes">0</p>
+                    </div>
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-clock text-red-600 text-lg"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Valor Pendente</p>
+                        <p class="text-xl font-bold text-orange-600" id="valorPendente">0€</p>
+                    </div>
+                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-euro-sign text-orange-600 text-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Recent -->
+        <div class="grid lg:grid-cols-2 gap-6 mb-8">
+            <!-- Chart -->
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Histórico de Quotas</h3>
+                    <button onclick="abrirModalHistorico()" class="text-indigo-600 text-sm hover:text-indigo-800">
+                        Ver todas <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+                <canvas id="quotasChart" height="200"></canvas>
+            </div>
+
+            <!-- Recent Quotas -->
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Últimas Quotas</h3>
+                    <button onclick="abrirModalHistorico()" class="text-indigo-600 text-sm hover:text-indigo-800">
+                        Ver todas <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+                <div class="space-y-3" id="recentQuotas">
+                    <div class="text-center text-gray-500 py-4">Carregando...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meus Eventos -->
+        <div id="meusEventosSection" class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <i class="fas fa-calendar-check text-indigo-600 mr-2"></i>
+                        Eventos onde estou inscrito
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-1">Eventos que você confirmou participação</p>
+                </div>
+                <button onclick="abrirModalEventos()" class="text-indigo-600 text-sm hover:text-indigo-800">
+                    Ver todos <i class="fas fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+            
+            <div id="meusEventosContainer" class="space-y-3">
+                <div class="text-center text-gray-500 py-8">
+                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                    <p>Carregando eventos...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ações Rápidas -->
+        <div class="grid md:grid-cols-3 gap-6">
+            <button onclick="abrirModalHistorico()" 
+               class="group bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-lg transition-all text-center hover-card">
+                <div class="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-indigo-600 transition">
+                    <i class="fas fa-history text-2xl text-indigo-600 group-hover:text-white transition"></i>
+                </div>
+                <h4 class="font-semibold text-gray-800 mb-1">Histórico Completo</h4>
+                <p class="text-sm text-gray-500">Consultar todas as quotas pagas</p>
+            </button>
+            
+            <button onclick="abrirModalEventos()" 
+               class="group bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-lg transition-all text-center hover-card">
+                <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-600 transition">
+                    <i class="fas fa-calendar-check text-2xl text-green-600 group-hover:text-white transition"></i>
+                </div>
+                <h4 class="font-semibold text-gray-800 mb-1">Meus Eventos</h4>
+                <p class="text-sm text-gray-500">Ver eventos onde estou inscrito</p>
+            </button>
+            
+            <button onclick="abrirModalPerfil()" 
+               class="group bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-lg transition-all text-center hover-card">
+                <div class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-600 transition">
+                    <i class="fas fa-user-edit text-2xl text-purple-600 group-hover:text-white transition"></i>
+                </div>
+                <h4 class="font-semibold text-gray-800 mb-1">Atualizar Dados</h4>
+                <p class="text-sm text-gray-500">Alterar informações pessoais</p>
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== MODAL HISTÓRICO DE QUOTAS ========== -->
+    <div id="modalHistorico" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold">Histórico Completo de Quotas</h2>
+                <button onclick="fecharModal('modalHistorico')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="historicoQuotasContainer" class="space-y-4">
+                    <div class="text-center py-8 text-gray-500">Carregando...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL MEUS EVENTOS ========== -->
+    <div id="modalEventos" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold">Meus Eventos</h2>
+                <button onclick="fecharModal('modalEventos')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="meusEventosModalContainer" class="space-y-3">
+                    <div class="text-center py-8 text-gray-500">Carregando...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL PERFIL / EDITAR DADOS ========== -->
+    <!-- ========== MODAL PERFIL / EDITAR DADOS COM PASSWORD ========== -->
+<div id="modalPerfil" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+            <h2 class="text-xl font-bold">Atualizar Dados</h2>
+            <button onclick="fecharModal('modalPerfil')" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+        <div class="p-6">
+            <!-- Dados Pessoais -->
+            <form id="formEditarPerfil" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Nome</label>
+                    <input type="text" id="editNome" class="w-full border rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Email</label>
+                    <input type="email" id="editEmail" class="w-full border rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Telefone</label>
+                    <input type="text" id="editTelefone" class="w-full border rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">NIF</label>
+                    <input type="text" id="editNif" maxlength="9" pattern="\d{9}" inputmode="numeric"
+                           placeholder="9 dígitos" class="w-full border rounded-lg px-4 py-2">
+                    <p class="text-xs text-gray-500 mt-1">9 dígitos (opcional)</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Morada</label>
+                    <textarea id="editMorada" rows="3" class="w-full border rounded-lg px-4 py-2"></textarea>
+                </div>
+                
+                <!-- Separador -->
+                <div class="border-t pt-4 mt-2">
+                    <h3 class="font-semibold text-gray-700 mb-3">Alterar Password</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Password Atual</label>
+                            <input type="password" id="currentPassword" placeholder="••••••••" class="w-full border rounded-lg px-4 py-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Nova Password</label>
+                            <div class="flex gap-2">
+                                <input type="password" id="newPassword" placeholder="Mínimo 6 caracteres" class="flex-1 border rounded-lg px-4 py-2">
+                                <button type="button" onclick="gerarPassword()" class="bg-gray-200 px-3 py-2 rounded-lg hover:bg-gray-300" title="Gerar password aleatória">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Confirmar Nova Password</label>
+                            <input type="password" id="confirmPassword" placeholder="••••••••" class="w-full border rounded-lg px-4 py-2">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="fecharModal('modalPerfil')" class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50">Cancelar</button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const associado = JSON.parse(localStorage.getItem('associado') || '{}');
+        let quotasChart = null;
+        let todasQuotas = [];
+
+        // Verificar autenticação
+        if (!token) {
+            window.location.href = '/frontend/area-cliente/login.html';
+        }
+
+        // Atualizar informações do associado
+        document.getElementById('associadoNome').textContent = associado.nome || 'Associado';
+        document.getElementById('welcomeNome').textContent = associado.nome || 'Associado';
+        document.getElementById('numeroSocio').textContent = associado.numero_socio || 'N/A';
+        
+        const tipoLabels = {
+            'fundador': 'Associado Fundador',
+            'efetivo': 'Associado Efetivo',
+            'honorario': 'Associado Honorário'
+        };
+        document.getElementById('associadoTipo').textContent = tipoLabels[associado.tipo] || 'Associado';
+        document.getElementById('tipoAssociadoMsg').innerHTML = associado.tipo === 'honorario' ? 
+            '<i class="fas fa-info-circle mr-1"></i>Isento de quotas (Artigo 5.º, n.º 4)' : 
+            'Quota anual: 50€ (Artigo 22.º, n.º 3)';
+
+        // ========== FUNÇÕES DE MODAIS ==========
+        function abrirModalHistorico() {
+            document.getElementById('modalHistorico').classList.remove('hidden');
+            document.getElementById('modalHistorico').classList.add('flex');
+            carregarHistoricoQuotas();
+        }
+
+        function abrirModalEventos() {
+            document.getElementById('modalEventos').classList.remove('hidden');
+            document.getElementById('modalEventos').classList.add('flex');
+            carregarMeusEventosModal();
+        }
+
+        function abrirModalPerfil() {
+            document.getElementById('modalPerfil').classList.remove('hidden');
+            document.getElementById('modalPerfil').classList.add('flex');
+            carregarDadosPerfil();
+        }
+
+        function fecharModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('flex');
+        }
+
+        // ========== HISTÓRICO DE QUOTAS ==========
+        async function carregarHistoricoQuotas() {
+            try {
+                const response = await fetch('https://ifpn-public.onrender.com/api/quotas/minhas', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                todasQuotas = data.quotas;
+                
+                const container = document.getElementById('historicoQuotasContainer');
+                if (todasQuotas.length === 0) {
+                    container.innerHTML = '<div class="text-center py-8 text-gray-500">Nenhuma quota encontrada</div>';
+                    return;
+                }
+                
+                container.innerHTML = todasQuotas.map(q => `
+                    <div class="border rounded-lg p-4 flex justify-between items-center">
+                        <div>
+                            <p class="font-semibold text-gray-800">Quota ${q.ano}</p>
+                            <p class="text-sm text-gray-500">Vencimento: ${new Date(q.data_vencimento).toLocaleDateString('pt-PT')}</p>
+                            ${q.data_pagamento ? `<p class="text-xs text-green-600">Pago em: ${new Date(q.data_pagamento).toLocaleDateString('pt-PT')}</p>` : ''}
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xl font-bold ${q.estado === 'pago' ? 'text-green-600' : 'text-red-600'}">${q.valor}€</p>
+                            <span class="px-2 py-1 text-xs rounded-full ${q.estado === 'pago' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                ${q.estado === 'pago' ? 'Pago' : 'Pendente'}
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        // ========== MEUS EVENTOS (MODAL) ==========
+        async function carregarMeusEventosModal() {
+            try {
+                const response = await fetch('https://ifpn-public.onrender.com/api/eventos/meus/inscricoes', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const eventos = await response.json();
+                const container = document.getElementById('meusEventosModalContainer');
+                
+                if (eventos.length === 0) {
+                    container.innerHTML = '<div class="text-center py-8 text-gray-500">Você não está inscrito em nenhum evento</div>';
+                    return;
+                }
+                
+                container.innerHTML = eventos.map(evento => `
+                    <div class="border rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="px-2 py-0.5 text-xs rounded-full ${getTipoEventoClass(evento.tipo)}">
+                                        ${traduzirTipoEvento(evento.tipo)}
+                                    </span>
+                                    <span class="text-xs text-gray-400">
+                                        ${new Date(evento.data_inicio).toLocaleDateString('pt-PT')}
+                                    </span>
+                                </div>
+                                <h4 class="font-semibold text-gray-800">${evento.titulo}</h4>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>${evento.local?.nome || 'Local a definir'}
+                                </p>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <button onclick="verDetalhesEvento('${evento._id}')" class="text-indigo-600 text-sm hover:text-indigo-800">
+                                    Ver detalhes
+                                </button>
+                                <button onclick="cancelarInscricaoModal('${evento._id}')" class="text-red-500 text-sm hover:text-red-700">
+                                    Cancelar inscrição
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        // ========== PERFIL ==========
+        async function carregarDadosPerfil() {
+    try {
+        const response = await fetch('https://ifpn-public.onrender.com/api/auth/perfil', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        const perfil = data.associado;
+        
+        document.getElementById('editNome').value = perfil.nome || '';
+        document.getElementById('editEmail').value = perfil.email || '';
+        document.getElementById('editTelefone').value = perfil.telefone || '';
+        document.getElementById('editNif').value = perfil.nif || '';
+        
+        // Limpar campos de password
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmPassword').value = '';
+        
+        let moradaStr = '';
+        if (perfil.morada) {
+            if (perfil.morada.rua) moradaStr += perfil.morada.rua + '\n';
+            if (perfil.morada.cidade) moradaStr += perfil.morada.cidade + '\n';
+            if (perfil.morada.codigo_postal) moradaStr += perfil.morada.codigo_postal;
+        }
+        document.getElementById('editMorada').value = moradaStr;
+    } catch (error) {
+        console.error('Erro:', error);
+    }
+}
+
+function gerarPassword() {
+    const novaPassword = Math.random().toString(36).slice(-8) + Math.floor(Math.random() * 1000);
+    document.getElementById('newPassword').value = novaPassword;
+    document.getElementById('confirmPassword').value = novaPassword;
+}
+
+document.getElementById('formEditarPerfil').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    // Validar passwords
+    if (newPassword || confirmPassword) {
+        if (newPassword !== confirmPassword) {
+            alert('As novas passwords não coincidem!');
+            return;
+        }
+        if (newPassword.length < 6) {
+            alert('A nova password deve ter pelo menos 6 caracteres!');
+            return;
+        }
+        if (!currentPassword) {
+            alert('Para alterar a password, introduza a password atual!');
+            return;
+        }
+    }
+    
+    // Dados do perfil
+    const moradaLines = document.getElementById('editMorada').value.split('\n');
+    // Validar NIF (se preenchido tem de ter 9 dígitos)
+    const nifValor = document.getElementById('editNif').value.trim();
+    if (nifValor && !/^\d{9}$/.test(nifValor)) {
+        alert('O NIF deve conter exatamente 9 dígitos');
+        return;
+    }
+
+    const data = {
+        nome: document.getElementById('editNome').value,
+        email: document.getElementById('editEmail').value,
+        telefone: document.getElementById('editTelefone').value,
+        nif: nifValor,
+        morada: {
+            rua: moradaLines[0] || '',
+            cidade: moradaLines[1] || '',
+            codigo_postal: moradaLines[2] || ''
+        }
+    };
+    
+    try {
+        const perfilResponse = await fetch('https://ifpn-public.onrender.com/api/auth/atualizar-perfil', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (!perfilResponse.ok) {
+            const err = await perfilResponse.json();
+            throw new Error(err.error || 'Erro ao atualizar perfil');
+        }
+        
+        if (newPassword) {
+            const passwordResponse = await fetch('https://ifpn-public.onrender.com/api/auth/alterar-password', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    password_atual: currentPassword,
+                    nova_password: newPassword
+                })
+            });
+            
+            if (!passwordResponse.ok) {
+                const err = await passwordResponse.json();
+                throw new Error(err.error || 'Erro ao alterar password');
+            }
+            
+            alert('Password alterada com sucesso! Por favor, faça login novamente.');
+            localStorage.clear();
+            window.location.href = '/frontend/area-cliente/login.html';
+            return;
+        }
+        
+        alert('Dados atualizados com sucesso!');
+        fecharModal('modalPerfil');
+        location.reload();
+        
+    } catch (error) {
+        console.error('Erro:', error);
+        alert(error.message);
+    }
+});
+
+        // ========== QUOTAS ==========
+        async function carregarQuotas() {
+            try {
+                const response = await fetch('https://ifpn-public.onrender.com/api/quotas/minhas', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Erro ao carregar quotas');
+                
+                const data = await response.json();
+                
+                document.getElementById('totalQuotas').textContent = data.estatisticas.total || 0;
+                document.getElementById('quotasPagas').textContent = data.estatisticas.pagas || 0;
+                document.getElementById('quotasPendentes').textContent = data.estatisticas.pendentes || 0;
+                document.getElementById('valorPendente').textContent = (data.estatisticas.valor_pendente || 0) + '€';
+                
+                const recentHtml = data.quotas.slice(0, 5).map(q => `
+                    <div class="flex justify-between items-center py-3 border-b border-gray-100 last:border-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full ${q.estado === 'pago' ? 'bg-green-100' : 'bg-red-100'} flex items-center justify-center">
+                                <i class="fas ${q.estado === 'pago' ? 'fa-check text-green-600' : 'fa-clock text-red-600'} text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Quota ${q.ano}</p>
+                                <p class="text-xs text-gray-400">Vencimento: ${new Date(q.data_vencimento).toLocaleDateString('pt-PT')}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold ${q.estado === 'pago' ? 'text-green-600' : 'text-red-600'}">${q.valor}€</p>
+                            <p class="text-xs ${q.estado === 'pago' ? 'text-green-500' : 'text-red-500'}">${q.estado === 'pago' ? 'Pago' : 'Pendente'}</p>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('recentQuotas').innerHTML = recentHtml || '<div class="text-center text-gray-500 py-4">Nenhuma quota encontrada</div>';
+                
+                const anos = data.quotas.map(q => q.ano.toString());
+                const valores = data.quotas.map(q => q.valor);
+                const cores = data.quotas.map(q => q.estado === 'pago' ? '#10B981' : '#EF4444');
+                
+                if (quotasChart) quotasChart.destroy();
+                
+                const ctx = document.getElementById('quotasChart').getContext('2d');
+                quotasChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: anos,
+                        datasets: [{
+                            label: 'Valor da Quota (€)',
+                            data: valores,
+                            backgroundColor: cores,
+                            borderRadius: 8,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        // ========== EVENTOS ==========
+        async function carregarMeusEventos() {
+            try {
+                const response = await fetch('https://ifpn-public.onrender.com/api/eventos/meus/inscricoes', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const eventos = await response.json();
+                const container = document.getElementById('meusEventosContainer');
+                
+                if (eventos.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 bg-gray-50 rounded-xl">
+                            <i class="fas fa-calendar-times text-4xl text-gray-300 mb-3"></i>
+                            <p class="text-gray-500">Você ainda não está inscrito em nenhum evento.</p>
+                            <a href="/frontend/eventos.html" class="inline-block mt-3 text-indigo-600 hover:text-indigo-800">Explorar eventos →</a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = eventos.slice(0, 3).map(evento => `
+                    <div class="border border-gray-100 rounded-xl p-4 hover:shadow-md transition-all fade-in">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-full ${getTipoEventoBg(evento.tipo)} flex items-center justify-center flex-shrink-0">
+                                    <i class="${getTipoEventoIcon(evento.tipo)} text-white"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap mb-1">
+                                        <span class="px-2 py-0.5 text-xs rounded-full ${getTipoEventoClass(evento.tipo)}">${traduzirTipoEvento(evento.tipo)}</span>
+                                        <span class="text-xs text-gray-400">${new Date(evento.data_inicio).toLocaleDateString('pt-PT')}</span>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-800">${evento.titulo}</h4>
+                                    <p class="text-sm text-gray-500 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>${evento.local?.nome || 'Local a definir'}</p>
+                                </div>
+                            </div>
+                            <button onclick="verDetalhesEvento('${evento._id}')" class="text-indigo-600 text-sm font-medium">Ver detalhes →</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                if (eventos.length > 3) {
+                    container.innerHTML += `<div class="text-center pt-2"><button onclick="abrirModalEventos()" class="text-indigo-600 text-sm hover:text-indigo-800">Ver mais ${eventos.length - 3} eventos...</button></div>`;
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        // Funções auxiliares
+        function getTipoEventoClass(tipo) {
+            const classes = {
+                'workshop': 'bg-blue-100 text-blue-800',
+                'conferencia': 'bg-green-100 text-green-800',
+                'reuniao': 'bg-yellow-100 text-yellow-800',
+                'cultural': 'bg-purple-100 text-purple-800',
+                'outro': 'bg-gray-100 text-gray-800'
+            };
+            return classes[tipo] || classes['outro'];
+        }
+
+        function getTipoEventoBg(tipo) {
+            const classes = {
+                'workshop': 'bg-blue-500',
+                'conferencia': 'bg-green-500',
+                'reuniao': 'bg-yellow-500',
+                'cultural': 'bg-purple-500',
+                'outro': 'bg-gray-500'
+            };
+            return classes[tipo] || classes['outro'];
+        }
+
+        function getTipoEventoIcon(tipo) {
+            const icons = {
+                'workshop': 'fas fa-chalkboard-user',
+                'conferencia': 'fas fa-microphone-alt',
+                'reuniao': 'fas fa-users',
+                'cultural': 'fas fa-palette',
+                'outro': 'fas fa-calendar'
+            };
+            return icons[tipo] || icons['outro'];
+        }
+
+        function traduzirTipoEvento(tipo) {
+            const tipos = {
+                'workshop': 'Workshop',
+                'conferencia': 'Conferência',
+                'reuniao': 'Reunião',
+                'cultural': 'Cultural',
+                'outro': 'Outro'
+            };
+            return tipos[tipo] || tipo;
+        }
+
+        function verDetalhesEvento(id) {
+            window.location.href = `/frontend/eventos.html?id=${id}`;
+        }
+
+        async function cancelarInscricaoModal(eventoId) {
+            if (!confirm('Cancelar inscrição neste evento?')) return;
+            try {
+                const response = await fetch(`https://ifpn-public.onrender.com/api/eventos/${eventoId}/cancelar`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    alert('Inscrição cancelada!');
+                    fecharModal('modalEventos');
+                    carregarMeusEventos();
+                } else {
+                    alert('Erro ao cancelar');
+                }
+            } catch (error) {
+                alert('Erro ao cancelar');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('associado');
+            window.location.href = '/frontend/index.html';
+        }
+
+        // Inicializar
+        carregarQuotas();
+        carregarMeusEventos();
+        
+        // Fechar modais ao clicar fora
+        document.querySelectorAll('.fixed').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

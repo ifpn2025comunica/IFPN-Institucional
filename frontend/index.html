@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Início - IFPN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="/assets/images/imgPLF.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Allura&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .font-cursive { font-family: 'Allura', cursive; }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #423ea3 0%, #ba1239 100%);
+        }
+        .btn-primary {
+            background-color: #4946df;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #ba1239;
+        }
+        .text-primary {
+            color: #4946df;
+        }
+        .text-secondary {
+            color: #ba1239;
+        }
+        .bg-primary-light {
+            background-color: #f0f0fc;
+        }
+        .border-secondary {
+            border-color: #ba1239;
+        }
+        .hover\:bg-secondary:hover {
+            background-color: #ba1239;
+        }
+        .hover\:text-secondary:hover {
+            color: #ba1239;
+        }
+    </style>
+</head>
+<body class="bg-white">
+    <!-- HEADER (carregado automaticamente) -->
+    <div id="header-placeholder"></div>
+
+    <!-- Hero Section com novas cores -->
+    <section class="max-w-7xl mx-auto text-white bg-[url('/frontend/assets/images/hero.png')] bg-cover bg-center mt-6 mb-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center" style="height: 600px;">
+                <div class="hidden md:block">
+                </div>
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-bold leading-tight text-[#4946df] mb-6 text-right">
+                        Instituto Fernando Paulouro Neves
+                    </h1>
+                    <p class="text-xl mb-8 text-black text-right ">
+                        Promover a reflexão e o progresso da sociedade, salvaguardando o legado de Fernando Paulouro Neves através de publicações e iniciativas educativas e culturais.
+                    </p>
+                    <div class="flex flex-wrap gap-4 justify-end">
+                        <a href="/frontend/quem-somos.html" class="bg-[#4946df] text-white items-center px-10 py-4 font-semibold hover:bg-[#ba1239] transition">
+                            Conheça-nos
+                        </a>
+                        <a href="/frontend/contato.html#apoiar" class="border-2 border-[#4946df] text-[#4946df] px-10 py-4 font-semibold hover:bg-white hover:text-[#423ea3] transition">
+                            Apoie o IFPN
+                        </a>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+    <!-- Últimas Notícias -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3">
+
+            <div class="flex text-left mb-3 w-full px-4 py-2 mt-16 border-b-4 border-[#4946df]">
+                <h1 class="text-5xl font-bold text-[#4946df] pt-5">Últimas Notícias</h1>
+            </div>
+
+            <div id="ultimasNoticiasContainer" class="grid md:grid-cols-3">
+                <div class="col-span-3 text-center text-gray-500">
+                    <i class="fas fa-spinner fa-spin text-2xl"></i> Carregando notícias...
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-16"></div>
+    <div class="max-w-7xl mx-auto overflow-hidden" style="height: 100px;">
+        <img src="/frontend/assets/images/separador-01.png"
+             alt=""
+             class="w-full h-full object-cover object-center">
+    </div>
+    <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mt-16 mb-3"></div>
+    <!-- Estatísticas Dinâmicas -->
+    <section class="bg-white max-w-7xl mx-auto">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-4 text-center">
+                <div class="bg-[#e0def7] border-2 border-[#4946df] p-6 hover:shadow-lg transition">
+                    <div class="text-4xl font-bold text-[#4946df] mb-2" id="totalAssociados">0</div>
+                    <div class="text-black text-xl">Associados</div>
+                </div>
+                <div class="bg-[#e0def7] border-2 border-[#4946df] p-6 hover:shadow-lg transition">
+                    <div class="text-4xl font-bold text-[#4946df] mb-2" id="totalProjetos">0</div>
+                    <div class="text-black text-xl">Projetos Realizados</div>
+                </div>
+                <div class="bg-[#e0def7] border-2 border-[#4946df] p-6 hover:shadow-lg transition">
+                    <div class="text-4xl font-bold text-[#4946df] mb-2" id="totalNoticias">0</div>
+                    <div class="text-black text-xl">Notícias</div>
+                </div>
+                <div class="bg-[#e0def7] border-2 border-[#4946df] p-6 hover:shadow-lg transition">
+                    <div class="text-4xl font-bold text-[#4946df] mb-2" id="totalEventosAno">0</div>
+                    <div class="text-black text-xl">Eventos/Ano</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mt-3"></div>
+    <div class="max-w-7xl mx-auto overflow-hidden mt-16 mb-16" style="height: 100px;">
+        <img src="/frontend/assets/images/separador-01.png"
+             alt=""
+             class="w-full h-full object-cover object-center">
+    </div>
+
+    <!-- A Palavra Escrita: Blogue do Autor + Cadernos -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex text-left mb-3 w-full px-4 py-2 border-b-4 border-[#4946df] items-center gap-3">
+                <h1 class="text-5xl font-bold text-[#4946df] pt-5">A Palavra Escrita</h1>
+            </div>
+            <p class="text-xl text-black w-full px-4 py-4">
+                O legado de Fernando Paulouro é, antes de tudo, uma <strong class="text-[#4946df]">palavra escrita</strong>.
+                Do <strong>seu blogue pessoal</strong> aos novos <strong>Cadernos</strong>, partilhamos um espaço de leitura e de criação.
+            </p>
+            <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3"></div>
+
+            <div class="grid md:grid-cols-2 gap-0">
+                <!-- Texto -->
+                <div class="p-8 bg-white border-2 border-[#4946df] flex flex-col justify-center">
+                    <h2 class="text-3xl font-bold text-[#4946df] mb-4">
+                        <i class="fas fa-quote-left text-[#ba1239] mr-2"></i>
+                        fernandopaulouro.com
+                    </h2>
+                    <p class="text-black text-lg mb-4">
+                        Durante a sua vida, <strong class="text-[#4946df]">Fernando Paulouro Neves</strong> manteve um blogue
+                        pessoal onde partilhou crónicas, reflexões e textos sobre cultura, sociedade e a vida na Beira Interior.
+                    </p>
+                    <p class="text-black text-lg mb-6">
+                        Esse arquivo permanece online como um <strong class="text-[#ba1239]">testemunho vivo do seu pensamento</strong> —
+                        e é, para o IFPN, uma das principais fontes do legado que nos propomos preservar e difundir.
+                    </p>
+                    <div>
+                        <a href="https://www.fernandopaulouro.com/" target="_blank" rel="noopener noreferrer"
+                           class="inline-flex items-center bg-[#4946df] text-white px-8 py-4 font-semibold text-lg hover:bg-[#ba1239] transition">
+                            <i class="fas fa-external-link-alt mr-2"></i>
+                            Visitar o blogue
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Cadernos — espaço de publicação aberto -->
+                <div class="bg-white p-8 flex flex-col justify-center border-2 border-[#4946df]">
+                    <div class="text-center">
+                        <!-- Logótipo Cadernos (inspirado no estilo da plataforma) -->
+                        <div class="flex items-center justify-center gap-3 mb-2">
+                            <div class="w-16 h-16 bg-[#4946df] rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-user-edit text-2xl text-white"></i>
+                            </div>
+                            <h2 class="font-cursive text-[#4946df]" style="font-size: 5rem; line-height: 1;">Cadernos</h2>
+                        </div>
+
+                        <p class="text-sm text-[#ba1239] font-semibold uppercase tracking-wider mb-4">Espaço aberto de publicação</p>
+
+                        <div class="border-t-2 border-[#4946df] w-32 mx-auto mb-4"></div>
+
+                        <p class="text-lg text-black mb-3">
+                            Uma plataforma onde leitores, investigadores e amigos do IFPN podem
+                            <strong class="text-[#4946df]">publicar os seus próprios artigos</strong>, crónicas e reflexões.
+                        </p>
+                        <p class="text-base text-black mb-6 italic">
+                            Inspirados no exemplo de Fernando Paulouro, abrimos a palavra à comunidade.
+                        </p>
+
+                        <div class="flex flex-wrap justify-center gap-2 mb-6 text-sm">
+                            <span class="bg-[#e0def7] text-[#4946df] border border-[#4946df] px-3 py-1 font-semibold"><i class="fas fa-pen-nib mr-1"></i>Escrever</span>
+                            <span class="bg-[#e0def7] text-[#4946df] border border-[#4946df] px-3 py-1 font-semibold"><i class="fas fa-book mr-1"></i>Publicar</span>
+                            <span class="bg-[#e0def7] text-[#4946df] border border-[#4946df] px-3 py-1 font-semibold"><i class="fas fa-comments mr-1"></i>Partilhar</span>
+                        </div>
+
+                        <a href="https://dev-cadernos-ifpn.pantheonsite.io/" target="_blank" rel="noopener noreferrer"
+                           class="inline-flex items-center bg-[#4946df] text-white px-8 py-4 font-semibold text-lg hover:bg-[#ba1239] transition">
+                            <i class="fas fa-arrow-right mr-2"></i>
+                            Entrar nos Cadernos
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3 px-4">
+                <p class="text-xs text-[#4946df]">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    À esquerda, o arquivo histórico do autor, mantido tal como ele o deixou. À direita, os
+                    <strong>Cadernos</strong> — a plataforma onde a comunidade contribui com novos textos. Para informação institucional consulte
+                    <a href="/frontend/noticias.html" class="text-[#ba1239] hover:text-[#4946df] font-semibold underline">Notícias</a>
+                    e
+                    <a href="/frontend/projetos.html" class="text-[#ba1239] hover:text-[#4946df] font-semibold underline">Projetos</a>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mt-16 mb-3"></div>
+    <!-- Missão Section (alinhada com os Estatutos) -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-left mb-6 w-full">
+                <h1 class="text-5xl font-bold text-[#4946df] mb-2 px-4 mt-16">A Nossa Missão</h1>
+                <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mt-3 mb-3"></div>
+                <p class="text-xl text-black max-w-7xl mx-auto w-full px-4 ">
+                    <strong>Artigo 2.º dos Estatutos:</strong> Salvaguardar e difundir o legado de Fernando Paulouro Neves, 
+                    através de publicações e iniciativas educativas e culturais que afirmem os seus valores humanistas 
+                    e incentivem a reflexão e o progresso da sociedade.
+                </p>
+            </div>
+            <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mt-3 mb-3"></div>
+
+            <div class="grid md:grid-cols-3">
+                <div class="text-center p-6 bg-gray-50 transition relative bg-white border-2 border-[#4946df]">
+                    <div class="w-16 h-16 bg-[#4946df] rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-book-open text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-[#4946df]">Publicações</h3>
+                    <p class="text-black">
+                        Edição e divulgação de obras que perpetuam o pensamento crítico, 
+                        o rigor intelectual e o compromisso cívico de Fernando Paulouro Neves.
+                    </p>
+                    <p class="text-xs text-[#4946df] mt-2">Artigo 2.º</p>
+                </div>
+
+                <div class="text-center p-6 bg-gray-50 transition relative bg-white border-2 border-[#4946df]">
+                    <div class="w-16 h-16 bg-[#4946df] rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-graduation-cap text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-[#4946df]">Iniciativas Educativas</h3>
+                    <p class="text-black">
+                        Cursos, workshops e formações que promovem a educação, a cidadania, 
+                        a igualdade e a não discriminação (Artigo 3.º, n.º 1).
+                    </p>
+                    <p class="text-xs text-[#4946df] mt-2">Artigo 3.º, n.º 1</p>
+                </div>
+
+                <div class="text-center p-6 bg-gray-50 transition relative bg-white border-2 border-[#4946df]">
+                    <div class="w-16 h-16 bg-[#4946df] rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-globe-europe text-2xl text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2 text-[#4946df]">Âmbito de Atuação</h3>
+                    <p class="text-black">
+                        Atua nos setores histórico, artístico, cultural, desenvolvimento local, 
+                        educação, cidadania, direitos humanos e apoio humanitário.
+                    </p>
+                    <p class="text-xs text-[#4946df] mt-2">Artigo 3.º, n.º 1</p>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mt-3 mb-3"></div>
+
+            <div class="mt-8 bg-white rounded-xl">
+                <h3 class="text-left text-5xl font-bold text-[#4946df] px-4">
+                    Princípios Orientadores
+                </h3>
+                <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mt-3 mb-3"></div>
+                <div class="grid md:grid-cols-3 gap-4 text-sm text-black w-full px-4 py-4 border-t-2 border-b-2 border-[#4946df]">
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-[#4946df] mt-0.5"></i>
+                        <span>Primado das pessoas e dos objetivos sociais</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-[#4946df] mt-0.5"></i>
+                        <span>Adesão e participação libre e voluntária</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-[#4946df] mt-0.5"></i>
+                        <span>Controlo democrático pelos membros</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-[#4946df] mt-0.5"></i>
+                        <span>Solidariedade, igualdade e não discriminação</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-[#4946df] mt-0.5"></i>
+                        <span>Transparência e responsabilidade partilhada</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-[#4946df] mt-0.5"></i>
+                        <span>Gestão autónoma e independente</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-3 text-left px-4">
+                <p class="text-xs text-[#4946df]">
+                    <i class="fas fa-info-circle mr-1 text-[#4946df] "></i>
+                    O IFPN não atua nos setores político-partidário, sindical ou religioso (Artigo 3.º, n.º 2)
+                </p>
+            </div>
+        </div>
+    </section>
+
+<div class="max-w-7xl mx-auto overflow-hidden mt-16 mb-16" style="height: 100px;">
+        <img src="/frontend/assets/images/separador-01.png"
+             alt=""
+             class="w-full h-full object-cover object-center">
+    </div>
+
+    <!-- Vídeos YouTube -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-left text-5xl font-bold text-[#4946df] mb-8w-full px-4">Multimédia</h2>
+            <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mt-3"></div>
+            
+            <div class="py-3 grid md:grid-cols-2">
+                <div class="bg-white shadow-lg p-6 border-2 border-[#4946df] p-6 hover:shadow-lg transition" id="liveSection">
+                    <div class="flex items-center mb-4">
+                        <div class="w-3 h-3 bg-red-600 rounded-full animate-pulse mr-2"></div>
+                        <h3 class="text-xl font-semibold text-[#4946df]">Em Direto</h3>
+                    </div>
+                    <div class="aspect-w-16 aspect-h-9 bg-gray-200 mb-4">
+                        <iframe id="liveIframe" class="w-full h-64" 
+                                src="" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <p id="liveTitulo" class="text-gray-600">Carregando...</p>
+                </div>
+
+                <div class="bg-white shadow-lg p-6 border-2 border-[#4946df] p-6 hover:shadow-lg transition">
+                    <h3 class="text-xl font-semibold mb-4 text-[#4946df]">Vídeos em Destaque</h3>
+                    <div id="videosArquivoContainer" class="space-y-4">
+                        <div class="text-center text-gray-500 py-4">
+                            <i class="fas fa-spinner fa-spin"></i> Carregando vídeos...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3"></div>
+    <div class="max-w-7xl mx-auto overflow-hidden mt-16 mb-16" style="height: 100px;">
+        <img src="/frontend/assets/images/separador-01.png"
+             alt=""
+             class="w-full h-full object-cover object-center">
+    </div>
+    <!-- Newsletter Section -->
+    <section class=" bg-white">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="text-left text-5xl font-bold text-white bg-[#4946df] px-4 pb-1 pt-8">
+            <h2 class="text-4xl font-bold text-white mb-4">Receba as nossas novidades</h2>
+            </div>
+            <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mt-1"></div>
+            <form id="newsletterForm" class="max-w-7xl mx-auto">
+                <div class="flex flex-col sm:flex-row px-40">
+                    <input type="email" id="newsletterEmail" 
+                        placeholder="O seu email *" 
+                        class="flex-1 px-4 py-8 mb-1 mt-1 border-l-2 border-[#4946df] focus:outline-none focus:ring-2 focus:ring-white"
+                        required>
+                    <input type="text" id="newsletterNome" 
+                           placeholder="O seu nome" 
+                           class="flex-1 px-4 py-8 mb-1 mt-1 border-l-2 border-r-2 border-[#4946df] focus:outline-none focus:ring-2 focus:ring-white">
+                </div>
+                <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-1"></div>
+                <div class="bg-white/10 rounded-lg">
+                    <p class="text-center text-2xl font-bold text-[#4946df] p-2">Receber notificações sobre:</p>
+                    <div class="max-w-7xl mx-auto border-t border-[#4946df] mb-1"></div>
+                    <div class="flex flex-wrap gap-12 justify-center mb-8w-full px-10">
+                        <label class="text-xl p-6 relative flex items-center gap-2 text-[#4946df] cursor-pointer bg-white">
+                            <input type="checkbox" value="eventos" class="categoria-checkbox w-6 h-6 rounded ">
+                            <span>Eventos</span><i class="fas fa-calendar mr-2"></i>
+                        </label>
+                        <label class="text-xl p-6 relative flex items-center gap-2 text-[#4946df] cursor-pointer bg-white">
+                            <input type="checkbox" value="noticias" class="categoria-checkbox w-6 h-6 rounded">
+                            <span>Notícias</span><i class="fas fa-newspaper mr-2"></i>
+                        </label>
+                        <label class="text-xl p-6 relative flex items-center gap-2 text-[#4946df] cursor-pointer bg-white">
+                            <input type="checkbox" value="todos" id="categoriaTodos" class="w-6 h-6 rounded">
+                            <span>Todas</span><i class="fas fa-star mr-2"></i>
+                        </label>
+                    </div>
+                </div>
+                <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-1"></div>
+                
+                <button type="submit" 
+                        class="text-[#4946df] px-6 p-2 text-xl font-semibold hover:bg-[#ba1239] hover:text-white transition">
+                    <i class="fas fa-paper-plane mr-2"></i>Subscrever
+                </button>
+            </form>
+        </div>
+    </section>
+    <div class="max-w-7xl mx-auto border-t-2 border-[#4946df] mb-1 mt-1"></div>
+    <div class="max-w-7xl mx-auto overflow-hidden mt-10 mb-10" style="height: 100px;">
+        <img src="/frontend/assets/images/separador-01.png"
+             alt=""
+             class="w-full h-full object-cover object-center">
+    </div>
+    <!-- FOOTER (carregado automaticamente) -->
+    <div id="footer-placeholder"></div>
+
+    <script src="/frontend/js/include.js"></script>
+    <script>
+        // ==================== TODOS OS TEUS SCRIPTS ORIGINAIS (preservados) ====================
+        
+        // Função para carregar as últimas 3 notícias
+        async function carregarUltimasNoticias() {
+            const container = document.getElementById('ultimasNoticiasContainer');
+            container.innerHTML = `<div class="col-span-3 text-center py-8 text-gray-500"><i class="fas fa-spinner fa-spin text-2xl"></i> Carregando notícias...</div>`;
+            try {
+                const response = await fetch('https://ifpn-public.onrender.com/api/noticias?limit=3');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                let noticias = [];
+                if (Array.isArray(data)) noticias = data;
+                else if (data.noticias && Array.isArray(data.noticias)) noticias = data.noticias;
+                else if (data.data && Array.isArray(data.data)) noticias = data.data;
+                else noticias = [];
+                
+                if (noticias.length === 0) {
+                    container.innerHTML = `<div class="col-span-3 text-center py-8 text-gray-500"><i class="fas fa-newspaper text-3xl mb-2 opacity-50"></i><p>Nenhuma notícia disponível no momento</p><p class="text-sm mt-2">Adicione notícias no painel administrativo</p></div>`;
+                    return;
+                }
+                
+                container.innerHTML = noticias.map(noticia => `
+                    <div class="relative bg-white shadow-lg overflow-hidden hover:shadow-xl transition cursor-pointer
+                    border-2 border-[#4946df] " onclick="abrirNoticia('${noticia._id}')">
+                        ${noticia.imagem_destaque ? `
+                        <div class="text-sm text-black m-4">${noticia.data_publicacao ? new Date(noticia.data_publicacao).toLocaleDateString('pt-PT') : 'Data não definida'}</div>
+                        <h3 class="text-xl text-[#ba1239] font-semibold m-4">${noticia.titulo || 'Sem título'}</h3>
+                        <img src="${noticia.imagem_destaque}" alt="${noticia.titulo}" class="w-full h-48 object-cover">` : `<div class="w-full h-48 bg-gradient-to-r from-[#423ea3] to-[#ba1239] flex items-center justify-center"><i class="fas fa-newspaper text-white text-4xl"></i></div>`}
+                        <div class="p-6">
+                            
+                            <p class="text-gray-600 mb-4">${(noticia.subtitulo || noticia.conteudo || '').substring(0, 350)}...</p>
+                            <span class="text-[#423ea3] font-semibold hover:text-[#ba1239]">Ler mais →</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `<div class="col-span-3 text-center py-8 text-red-500"><i class="fas fa-exclamation-circle text-2xl mb-2"></i><p>Erro ao carregar notícias</p><button onclick="carregarUltimasNoticias()" class="mt-3 text-indigo-600 hover:text-indigo-800">Tentar novamente</button></div>`;
+            }
+        }
+        
+        function abrirNoticia(id) {
+            window.location.href = `/frontend/noticias.html?id=${id}`;
+        }
+        
+        // Carregar estatísticas
+        async function carregarEstatisticas() {
+            try {
+                const response = await fetch('https://ifpn-public.onrender.com/api/estatisticas/tudo');
+                const data = await response.json();
+                document.getElementById('totalAssociados').textContent = data.associados || 0;
+                document.getElementById('totalProjetos').textContent = data.projetos || 0;
+                document.getElementById('totalNoticias').textContent = data.noticias || 0;
+                document.getElementById('totalEventosAno').textContent = data.eventos_ano || 0;
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+                document.getElementById('totalAssociados').textContent = '0';
+                document.getElementById('totalProjetos').textContent = '0';
+                document.getElementById('totalNoticias').textContent = '0';
+                document.getElementById('totalEventosAno').textContent = '0';
+            }
+        }
+        
+        // Newsletter
+        document.getElementById('categoriaTodos')?.addEventListener('change', function(e) {
+            document.querySelectorAll('.categoria-checkbox').forEach(cb => {
+                if (cb.id !== 'categoriaTodos') cb.checked = e.target.checked;
+            });
+        });
+        
+        document.getElementById('newsletterForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('newsletterEmail').value;
+            const nome = document.getElementById('newsletterNome').value;
+            const categorias = Array.from(document.querySelectorAll('.categoria-checkbox:checked')).map(cb => cb.value);
+            if (categorias.length === 0) { alert('Selecione pelo menos uma categoria'); return; }
+            try {
+                const response = await fetch('https://ifpn-public.onrender.com/api/newsletter/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, nome, categorias })
+                });
+                if (response.ok) {
+                    alert('Inscrição realizada com sucesso!');
+                    document.getElementById('newsletterForm').reset();
+                } else alert('Erro ao subscrever');
+            } catch (error) { alert('Erro ao subscrever'); }
+        });
+        
+        // Vídeos e live
+        function extractVideoId(url) {
+            if (!url || typeof url !== 'string') return null;
+            const patterns = [/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})(?:[&?]|$)/, /^([a-zA-Z0-9_-]{11})$/];
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) return match[1];
+            }
+            return null;
+        }
+        
+        async function carregarConfiguracoesVideos() {
+            try {
+                const response = await fetch('https://ifpn-public.onrender.com/api/configuracoes');
+                if (!response.ok) throw new Error('Erro ao carregar configurações');
+                const config = await response.json();
+                // Live
+                if (config.transmissao_ao_vivo && config.transmissao_ao_vivo.ativo && config.transmissao_ao_vivo.link) {
+                    const live = config.transmissao_ao_vivo;
+                    let embedUrl = live.link;
+                    const videoId = extractVideoId(live.link);
+                    if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=0`;
+                    const liveSection = document.getElementById('liveSection');
+                    liveSection.innerHTML = `
+                        <div class="flex items-center mb-2"><div class="w-3 h-3 bg-red-600 rounded-full animate-pulse mr-2"></div><h3 class="text-xl text-[#4946df] font-semibold">Em Direto</h3></div>
+                        <div class="aspect-w-16 aspect-h-9 bg-gray-200  mb-2"><iframe class="w-full h-80 " src="${embedUrl}" frameborder="0" allowfullscreen></iframe></div>
+                        <p class="text-gray-600">${live.titulo || 'Transmissão ao vivo'}</p>
+                    `;
+                } else if (document.getElementById('liveSection')) {
+                    document.getElementById('liveSection').innerHTML = `<div class="bg-gray-100 p-6 text-center"><i class="fas fa-video-slash text-[#4946df] text-4xl mb-2"></i><p class="text-gray-500">Nenhuma transmissão ao vivo neste momento.</p></div>`;
+                }
+                // Vídeos arquivo
+                const videosContainer = document.getElementById('videosArquivoContainer');
+                if (!videosContainer) return;
+                if (config.videos_arquivo && config.videos_arquivo.length > 0) {
+                    // Ordenar do mais recente para o mais antigo (ordem decrescente)
+                    const todosVideos = config.videos_arquivo.filter(v => v.link && v.link.trim() !== '').sort((a,b) => (b.ordem||0)-(a.ordem||0));
+                    // Mostrar apenas os 3 vídeos em destaque (arquivo completo em arquivos.html)
+                    const videos = todosVideos.slice(0, 3);
+                    if (videos.length === 0) {
+                        videosContainer.innerHTML = `<div class="text-center text-gray-500 py-4"><i class="fas fa-video-slash text-2xl mb-2 opacity-50"></i><p>Nenhum vídeo disponível.</p></div>`;
+                        return;
+                    }
+                    videosContainer.innerHTML = videos.map(video => {
+                        const videoId = extractVideoId(video.link);
+                        const thumbnail = video.thumbnail || (videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : '');
+                        const isYouTube = videoId !== null;
+                        return `
+                            <div class="flex items-start space-x-3 pb-3 border-b border-gray-200 last:border-0">
+                                <div class="flex-shrink-0">
+                                    ${thumbnail ? `<img src="${thumbnail}" class="w-24 h-16 object-cover rounded-lg" onerror="this.src='https://placehold.co/96x64/e2e8f0/64748b?text=IFPN'">` : `<div class="w-24 h-16 bg-gray-200 rounded-lg flex items-center justify-center"><i class="fas ${isYouTube ? 'fa-youtube-play text-red-500 text-2xl' : 'fa-video text-gray-400 text-2xl'}"></i></div>`}
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-900 hover:text-[#ba1239] transition"><a href="${video.link}" target="_blank" rel="noopener noreferrer">${video.titulo || (isYouTube ? 'Vídeo do YouTube' : 'Conteúdo multimédia')}</a></h4>
+                                    ${video.descricao ? `<p class="text-sm text-gray-500 mt-1">${video.descricao.substring(0,80)}${video.descricao.length>80?'...':''}</p>` : ''}
+                                    <div class="flex items-center gap-3 mt-2">
+                                        <a href="${video.link}" target="_blank" rel="noopener noreferrer" class="text-xs text-[#ba1239] hover:text-[#423ea3] flex items-center gap-1"><i class="fas ${isYouTube ? 'fa-youtube' : 'fa-external-link-alt'}"></i>${isYouTube ? 'Assistir no YouTube' : 'Abrir conteúdo'}</a>
+                                        ${videoId ? `<span class="text-xs text-gray-400">•</span><a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" class="text-xs text-gray-500 hover:text-gray-700">Ver no YouTube</a>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('') + `
+                        <div class="pt-3 mt-2 border-t-2 border-[#4946df] text-center">
+                            <a href="/frontend/arquivos.html" class="inline-flex items-center gap-2 text-[#4946df] font-semibold hover:text-[#ba1239] transition">
+                                <i class="fas fa-folder-open"></i>
+                                Ver arquivo completo de vídeos${todosVideos.length > 3 ? ` (${todosVideos.length})` : ''}
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    videosContainer.innerHTML = `<div class="text-center text-gray-500 py-4"><i class="fas fa-video-slash text-2xl mb-2 opacity-50"></i><p>Nenhum vídeo no arquivo.</p><p class="text-sm mt-1">Os vídeos serão adicionados em breve.</p></div>`;
+                }
+            } catch (error) {
+                console.error(error);
+                const videosContainer = document.getElementById('videosArquivoContainer');
+                if (videosContainer) videosContainer.innerHTML = `<div class="text-center text-red-500 py-4"><i class="fas fa-exclamation-circle text-2xl mb-2"></i><p>Erro ao carregar vídeos</p><button onclick="carregarConfiguracoesVideos()" class="mt-2 text-indigo-600 text-sm">Tentar novamente</button></div>`;
+            }
+        }
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarUltimasNoticias();
+            carregarEstatisticas();
+            carregarConfiguracoesVideos();
+        });
+    </script>
+</body>
+</html>

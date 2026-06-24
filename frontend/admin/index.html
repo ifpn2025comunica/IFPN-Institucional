@@ -1,0 +1,3597 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - IFPN</title>
+    <link rel="icon" type="image/png" href="/assets/images/imgPLF.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar {
+            transition: all 0.3s;
+        }
+        .sidebar-link {
+            transition: all 0.2s;
+        }
+        .sidebar-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        .sidebar-link.active {
+            background-color: rgba(255,255,255,0.2);
+            border-left: 4px solid white;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 bg-indigo-800 text-white flex flex-col">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold">IFPN Admin</h1>
+                <p class="text-indigo-200 text-sm mt-1">Painel de Controlo</p>
+            </div>
+            
+            <nav class="flex-1 px-4 space-y-2">
+                <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg active" data-section="dashboard">
+                    <i class="fas fa-home w-6"></i>
+                    <span>Dashboard</span>
+                </a>
+                
+                <div class="pt-4">
+                    <p class="text-indigo-200 text-xs uppercase tracking-wider px-4 mb-2">Gestão</p>
+                    
+                    <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg" data-section="associados">
+                        <i class="fas fa-users w-6"></i>
+                        <span>Associados</span>
+                    </a>
+                    
+                    <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg" data-section="quotas">
+                        <i class="fas fa-euro-sign w-6"></i>
+                        <span>Quotas</span>
+                    </a>
+                    
+                    <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg" data-section="noticias">
+                        <i class="fas fa-newspaper w-6"></i>
+                        <span>Notícias</span>
+                    </a>
+                    
+                    <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg" data-section="eventos">
+                        <i class="fas fa-calendar-alt w-6"></i>
+                        <span>Eventos</span>
+                    </a>
+                    
+                    <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg" data-section="projetos">
+                        <i class="fas fa-project-diagram w-6"></i>
+                        <span>Projetos</span>
+                    </a>
+                </div>
+                
+                <div class="pt-4">
+                    <p class="text-indigo-200 text-xs uppercase tracking-wider px-4 mb-2">Comunicações</p>
+                    
+                    <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg" data-section="newsletter">
+                        <i class="fas fa-envelope w-6"></i>
+                        <span>Newsletter</span>
+                    </a>
+
+                    <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg" data-section="contacto">
+                        <i class="fas fa-ticket-alt w-6"></i>
+                        <span>Mensagens</span>
+                        <span id="badgeMensagens" class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full hidden">0</span>
+                    </a>
+                </div>
+                
+                <div class="pt-4">
+                    <a href="#" class="sidebar-link flex items-center px-4 py-3 rounded-lg" data-section="configuracoes">
+                        <i class="fas fa-cog w-6"></i>
+                        <span>Configurações</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="p-4 border-t border-indigo-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-circle text-2xl"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <p class="text-sm font-medium" id="adminNome">Admin</p>
+                        <p class="text-xs text-indigo-200">Administrador</p>
+                    </div>
+                    <button onclick="logout()" class="text-indigo-200 hover:text-white">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white shadow-sm">
+                <div class="px-6 py-4 flex justify-between items-center">
+                    <h2 class="text-xl font-semibold text-gray-800" id="pageTitle">Dashboard</h2>
+
+                    <div class="flex items-center space-x-4">
+                        <button onclick="window.location.href='../index.html'" class="text-indigo-600 hover:text-indigo-800 font-medium text-sm" title="Voltar para a página inicial">
+                            <i class="fas fa-home mr-2"></i>Página Inicial
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-y-auto bg-gray-100 p-6" id="contentArea">
+                <!-- Dynamic content will be loaded here -->
+                <div class="text-center text-gray-500">
+                    Carregando...
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONFIG & AUTH =====
+        const token = localStorage.getItem('token');
+        const associado = JSON.parse(localStorage.getItem('associado') || '{}');
+        const API_BASE = 'https://ifpn-public.onrender.com/api';
+
+        // Verificar se é admin
+        if (!token || associado.role !== 'admin') {
+            window.location.href = '/';
+        }
+
+        document.getElementById('adminNome').textContent = associado.nome || 'Admin';
+
+        // ===== UTILITY FUNCTIONS =====
+        /**
+         * Faz fetch seguro com tratamento de erro
+         */
+        async function apiFetch(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error(`Fetch error for ${endpoint}:`, error);
+                throw error;
+            }
+        }
+
+        /**
+         * Renderiza um stat card reutilizável
+         */
+        function createStatCard(icon, bgColor, iconColor, label, value) {
+            return `
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-${bgColor}-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-${icon} text-${iconColor}-600 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-gray-500 text-sm">${label}</p>
+                            <p class="text-2xl font-bold">${value}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Mostra mensagem de erro ao utilizador
+         */
+        function showError(content, message = 'Erro ao carregar dados') {
+            content.innerHTML = `
+                <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                    <i class="fas fa-exclamation-circle text-red-500 text-3xl mb-2"></i>
+                    <p class="text-red-700 font-medium">${message}</p>
+                    <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                        Recarregar Página
+                    </button>
+                </div>
+            `;
+        }
+
+        /**
+         * Mostra loading spinner
+         */
+        function showLoading(content) {
+            content.innerHTML = `
+                <div class="flex justify-center items-center h-64">
+                    <div class="animate-spin">
+                        <i class="fas fa-spinner text-indigo-600 text-4xl"></i>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Valida dados antes de enviar ao servidor
+         */
+        function validateFormData(data, required = []) {
+            for (let field of required) {
+                if (!data[field] || (typeof data[field] === 'string' && data[field].trim() === '')) {
+                    return { valid: false, error: `Campo ${field} é obrigatório` };
+                }
+            }
+            return { valid: true };
+        }
+
+        /**
+         * Renderiza um card de tabela reutilizável
+         */
+        function createTableCard(title, buttonText, buttonId, html) {
+            return `
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b flex justify-between items-center">
+                        <h3 class="text-lg font-semibold">${title}</h3>
+                        <button id="${buttonId}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                            <i class="fas fa-plus mr-2"></i>${buttonText}
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        ${html}
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Formata datas de forma legível
+         */
+        function formatDate(dateString) {
+            try {
+                return new Date(dateString).toLocaleDateString('pt-PT');
+            } catch (e) {
+                return '-';
+            }
+        }
+
+        /**
+         * Mostra toast notification
+         */
+        function showToast(message, type = 'info') {
+            const colors = {
+                'success': 'bg-green-500',
+                'error': 'bg-red-500',
+                'info': 'bg-blue-500'
+            };
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 ${colors[type] || colors.info} text-white px-6 py-3 rounded-lg shadow-lg z-50`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // ===== NAVIGATION =====
+        document.querySelectorAll('[data-section]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                // Update active state
+                document.querySelectorAll('[data-section]').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                // Load section
+                const section = link.dataset.section;
+                const sectionNames = {
+                    'dashboard': 'Dashboard',
+                    'associados': 'Associados',
+                    'quotas': 'Quotas',
+                    'noticias': 'Notícias',
+                    'eventos': 'Eventos',
+                    'projetos': 'Projetos',
+                    'configuracoes': 'Configurações',
+                    'contacto': 'Mensagens',
+                    'newsletter': 'Newsletter'
+                };
+                document.getElementById('pageTitle').textContent = sectionNames[section] || 'Painel';
+                loadSection(section);
+            });
+        });
+
+        // Load default section
+        loadSection('dashboard');
+
+        function loadSection(section) {
+            const content = document.getElementById('contentArea');
+            
+            switch(section) {
+                case 'dashboard':
+                    loadDashboard(content);
+                    break;
+                case 'associados':
+                    loadAssociados(content);
+                    break;
+                case 'quotas':
+                    loadQuotas(content);
+                    break;
+                case 'noticias':
+                    loadNoticias(content);
+                    break;
+                case 'eventos':
+                    loadEventos(content);
+                    break;
+                case 'projetos':
+                    loadProjetos(content);
+                    break;
+                case 'configuracoes':
+                    loadConfiguracoes(content);
+                    break;
+                case 'contacto':
+                    loadContacto(content);
+                break;    
+                case 'newsletter':
+                    loadNewsletter(content);
+                break;
+                default:
+                    content.innerHTML = '<div class="text-center text-gray-500">Secção em desenvolvimento</div>';
+            }
+        }
+
+        async function loadDashboard(content) {
+            showLoading(content);
+            try {
+                const data = await apiFetch('/admin/dashboard');
+                console.log('Dashboard data:', data); // DEBUG
+
+                // Preparar dados do gráfico - Quotas por ANO
+                const quotasAnos = Array.isArray(data.quotasPorAno) ? data.quotasPorAno : [];
+
+                console.log('Quotas por ano:', quotasAnos); // DEBUG
+
+                // Criar array de anos (2020 até ano atual)
+                const anoAtual = new Date().getFullYear();
+                const anosArray = [];
+                for (let ano = 2020; ano <= anoAtual; ano++) {
+                    anosArray.push(ano);
+                }
+
+                // Criar arrays com dados dos anos
+                const padasData = anosArray.map(ano => {
+                    const quotaAno = quotasAnos.find(q => q._id.ano === ano);
+                    return quotaAno ? parseInt(quotaAno.pagas) || 0 : 0;
+                });
+
+                const pendentesData = anosArray.map(ano => {
+                    const quotaAno = quotasAnos.find(q => q._id.ano === ano);
+                    return quotaAno ? parseInt(quotaAno.pendentes) || 0 : 0;
+                });
+
+                console.log('Dados finais:', { padasData, pendentesData, anos: anosArray }); // DEBUG
+
+                const statCards = [
+                    createStatCard('users', 'indigo', 'indigo', 'Total Associados', data.estatisticas.associados.total),
+                    createStatCard('euro-sign', 'green', 'green', 'Quotas Pagas (Mês)', data.estatisticas.quotas.pagas_mes),
+                    createStatCard('clock', 'red', 'red', 'Quotas Pendentes', data.estatisticas.quotas.pendentes),
+                    createStatCard('newspaper', 'purple', 'purple', 'Notícias', data.estatisticas.conteudos.noticias)
+                ];
+
+                content.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        ${statCards.join('')}
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-lg font-semibold mb-4">📊 Quotas Anuais (50€/ano)</h3>
+                            <canvas id="quotasChart" height="200"></canvas>
+
+                            <div class="mt-6 grid grid-cols-2 gap-4 pt-4 border-t">
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600">Total Pagas</p>
+                                    <p class="text-2xl font-bold text-blue-600">${padasData.reduce((a,b) => a+b, 0)} associados</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600">Total Pendentes</p>
+                                    <p class="text-2xl font-bold text-orange-600">${pendentesData.reduce((a,b) => a+b, 0)} associados</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-lg font-semibold mb-4">Últimos Associados</h3>
+                            <div class="space-y-3">
+                                ${data.ultimosAssociados.map(a => `
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="font-medium">${a.nome}</p>
+                                            <p class="text-sm text-gray-500">${a.email}</p>
+                                        </div>
+                                        <span class="text-xs text-gray-400">
+                                            ${new Date(a.data_adesao).toLocaleDateString('pt-PT')}
+                                        </span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Criar gráfico otimizado - Quotas por ANO
+                const ctx = document.getElementById('quotasChart').getContext('2d');
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: anosArray,
+                        datasets: [{
+                            label: '✓ Pagas',
+                            data: padasData,
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            borderColor: 'rgb(37, 99, 235)',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }, {
+                            label: '⏱ Pendentes',
+                            data: pendentesData,
+                            backgroundColor: 'rgba(251, 146, 60, 0.8)',
+                            borderColor: 'rgb(234, 88, 12)',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        indexAxis: 'x',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: { size: 12, weight: '500' },
+                                    padding: 15
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                titleFont: { size: 13, weight: 'bold' },
+                                bodyFont: { size: 12 },
+                                borderColor: '#ddd',
+                                borderWidth: 1,
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': ' + context.parsed.y + ' associados';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: function(value) {
+                                        return value;
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(200, 200, 200, 0.1)',
+                                    drawBorder: false
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+
+            } catch (error) {
+                showError(content, 'Erro ao carregar dashboard');
+            }
+        }
+
+        async function loadAssociados(content) {
+            showLoading(content);
+            try {
+                const data = await apiFetch('/admin/associados?limit=100');
+
+                content.innerHTML = `
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="p-6 border-b flex justify-between items-center">
+                            <h3 class="text-lg font-semibold">Gestão de Associados</h3>
+                            <button onclick="novoAssociado()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                                <i class="fas fa-plus mr-2"></i>Novo Associado
+                            </button>
+                        </div>
+
+                        <div class="p-6">
+                            <div class="mb-4 flex gap-4">
+                                <input type="text" id="searchAssociado" placeholder="Pesquisar..."
+                                       class="flex-1 border rounded-lg px-4 py-2">
+                                <select id="filtroTipo" class="border rounded-lg px-4 py-2">
+                                    <option value="">Todos os tipos</option>
+                                    <option value="efetivo">Efetivo</option>
+                                    <option value="honorario">Honorário</option>
+                                    <option value="fundador">Fundador</option>
+                                </select>
+                                <select id="filtroAtivo" class="border rounded-lg px-4 py-2">
+                                    <option value="true">Ativos</option>
+                                    <option value="false">Inativos</option>
+                                    <option value="">Todos</option>
+                                </select>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nº Sócio</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quotas</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        ${data.associados.map(a => `
+                                            <tr>
+                                                <td class="px-6 py-4">${a.numero_socio || '-'}</td>
+                                                <td class="px-6 py-4 font-medium">${a.nome}</td>
+                                                <td class="px-6 py-4">${a.email}</td>
+                                                <td class="px-6 py-4">
+                                                    <span class="px-2 py-1 text-xs rounded-full ${
+                                                        a.tipo === 'efetivo' ? 'bg-green-100 text-green-800' :
+                                                        a.tipo === 'honorario' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100'
+                                                    }">
+                                                        ${a.tipo}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span class="text-green-600 font-medium">${a.estatisticas_quotas?.pagas || 0}</span>
+                                                    <span class="text-gray-400 mx-1">/</span>
+                                                    <span class="text-red-600 font-medium">${a.estatisticas_quotas?.pendentes || 0}</span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span class="px-2 py-1 text-xs rounded-full ${
+                                                        a.ativo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                    }">
+                                                        ${a.ativo ? 'Ativo' : 'Inativo'}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <button onclick="editarAssociado('${a._id}')"
+                                                            class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button onclick="verQuotasAssociado('${a._id}', '${a.nome}')"
+                                                            class="text-green-600 hover:text-green-900 mr-3">
+                                                        <i class="fas fa-coins"></i>
+                                                    </button>
+                                                    <button onclick="eliminarAssociado('${a._id}', '${a.nome}')"
+                                                            class="text-red-600 hover:text-red-900">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="mt-4 flex justify-between items-center">
+                                <p class="text-sm text-gray-600">
+                                    Total: ${data.paginacao.totalRegistos} associados
+                                </p>
+                                <div class="flex gap-2">
+                                    <button class="px-3 py-1 border rounded hover:bg-gray-50">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <span class="px-3 py-1">Página ${data.paginacao.pagina}</span>
+                                    <button class="px-3 py-1 border rounded hover:bg-gray-50">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Ligar pesquisa + filtros (tipo e estado) — filtragem combinada nas linhas da tabela
+                const searchInput = document.getElementById('searchAssociado');
+                const filtroTipo = document.getElementById('filtroTipo');
+                const filtroAtivo = document.getElementById('filtroAtivo');
+
+                function aplicarFiltrosAssociados() {
+                    const termo = (searchInput?.value || '').trim().toLowerCase();
+                    const tipoSel = (filtroTipo?.value || '').toLowerCase();
+                    const ativoSel = filtroAtivo?.value; // '', 'true' ou 'false'
+
+                    const linhas = content.querySelectorAll('tbody tr');
+                    linhas.forEach(tr => {
+                        const celulas = tr.children;
+                        if (celulas.length < 7) return;
+
+                        const tipoCel = celulas[3]?.textContent.trim().toLowerCase();
+                        const estadoCel = celulas[5]?.textContent.trim().toLowerCase(); // "ativo" ou "inativo"
+                        const textoLinha = tr.textContent.toLowerCase();
+
+                        let mostrar = true;
+                        if (termo && !textoLinha.includes(termo)) mostrar = false;
+                        if (mostrar && tipoSel && tipoCel !== tipoSel) mostrar = false;
+                        if (mostrar && ativoSel === 'true' && estadoCel !== 'ativo') mostrar = false;
+                        if (mostrar && ativoSel === 'false' && estadoCel !== 'inativo') mostrar = false;
+
+                        tr.style.display = mostrar ? '' : 'none';
+                    });
+                }
+
+                if (searchInput) searchInput.addEventListener('input', aplicarFiltrosAssociados);
+                if (filtroTipo) filtroTipo.addEventListener('change', aplicarFiltrosAssociados);
+                if (filtroAtivo) filtroAtivo.addEventListener('change', aplicarFiltrosAssociados);
+
+                // Aplicar logo o estado inicial dos filtros (o select de Ativo arranca em "Ativos")
+                aplicarFiltrosAssociados();
+
+            } catch (error) {
+                showError(content, 'Erro ao carregar associados');
+            }
+        }
+
+        async function loadQuotas(content) {
+            showLoading(content);
+            try {
+                console.log('Carregando quotas...'); // DEBUG
+                const quotas = await apiFetch('/quotas/admin/todas');
+                console.log('Quotas carregadas:', quotas); // DEBUG
+
+                content.innerHTML = `
+                    <!-- HEADER COM BOTÕES -->
+                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-lg font-semibold mb-4">📋 Gerar Quotas Anuais</h3>
+                            <form id="formGerarQuotas" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Ano</label>
+                                    <input type="number" id="anoQuotas" value="${new Date().getFullYear()}"
+                                           class="w-full border rounded-lg px-4 py-2">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Valor (€)</label>
+                                    <input type="number" id="valorQuotas" value="50" step="0.01"
+                                           class="w-full border rounded-lg px-4 py-2">
+                                </div>
+                                <button type="submit"
+                                        class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                                    ⚙️ Gerar para Todos
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow p-6 flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4">⚡ Ações Rápidas</h3>
+                                <button onclick="criarQuotaManualModal()"
+                                        class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 mb-2">
+                                    <i class="fas fa-plus mr-2"></i>Nova Quota
+                                </button>
+                            </div>
+                            <div class="text-sm text-gray-600 mt-4 p-3 bg-blue-50 rounded">
+                                <p>Total de quotas: <span class="font-bold">${quotas.length}</span></p>
+                                <p>Pagas: <span class="text-green-600 font-bold">${quotas.filter(q => q.estado === 'pago').length}</span></p>
+                                <p>Pendentes: <span class="text-red-600 font-bold">${quotas.filter(q => q.estado === 'pendente').length}</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TABELA DE QUOTAS -->
+                    <div class="bg-white rounded-lg shadow">
+                        <div class="p-6 border-b">
+                            <h3 class="text-lg font-semibold mb-4">📊 Gestão de Quotas</h3>
+
+                            <!-- FILTROS -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                <input type="text" id="filtroAssociado" placeholder="Pesquisar associado..."
+                                       class="border rounded-lg px-3 py-2 text-sm">
+                                <select id="filtroAno" class="border rounded-lg px-3 py-2 text-sm">
+                                    <option value="">Todos os anos</option>
+                                    <option value="2020">2020</option>
+                                    <option value="2021">2021</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2024">2024</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2026">2026</option>
+                                    <option value="2027">2027</option>
+                                </select>
+                                <select id="filtroEstado" class="border rounded-lg px-3 py-2 text-sm">
+                                    <option value="">Todos os estados</option>
+                                    <option value="pago">Pago</option>
+                                    <option value="pendente">Pendente</option>
+                                    <option value="isento">Isento</option>
+                                    <option value="cancelado">Cancelado</option>
+                                </select>
+                                <button onclick="aplicarFiltrosQuota()" class="bg-indigo-600 text-white rounded-lg px-3 py-2 text-sm hover:bg-indigo-700">
+                                    <i class="fas fa-filter mr-1"></i>Filtrar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50 sticky top-0">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Associado</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Ano</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Valor</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Estado</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Vencimento</th>
+                                        <th class="px-4 py-3 text-left font-medium text-gray-700">Pagamento</th>
+                                        <th class="px-4 py-3 text-center font-medium text-gray-700">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200" id="quotasTableBody">
+                                    ${quotas.map(q => `
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-4 py-3">
+                                                <div>
+                                                    <p class="font-medium">${q.associado_id?.nome || 'Desconhecido'}</p>
+                                                    <p class="text-xs text-gray-500">${q.associado_id?.numero_socio || '-'}</p>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3 font-medium">${q.ano}</td>
+                                            <td class="px-4 py-3 font-medium">${q.valor.toFixed(2)} €</td>
+                                            <td class="px-4 py-3">
+                                                <span class="px-2 py-1 text-xs rounded-full ${
+                                                    q.estado === 'pago' ? 'bg-green-100 text-green-800' :
+                                                    q.estado === 'pendente' ? 'bg-red-100 text-red-800' :
+                                                    q.estado === 'isento' ? 'bg-gray-100 text-gray-800' :
+                                                    'bg-yellow-100 text-yellow-800'
+                                                }">
+                                                    ${q.estado.charAt(0).toUpperCase() + q.estado.slice(1)}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3 text-sm">${new Date(q.data_vencimento).toLocaleDateString('pt-PT')}</td>
+                                            <td class="px-4 py-3 text-sm">${q.data_pagamento ? new Date(q.data_pagamento).toLocaleDateString('pt-PT') : '-'}</td>
+                                            <td class="px-4 py-3 text-center">
+                                                <button onclick="editarQuota('${q._id}')" title="Editar"
+                                                        class="text-indigo-600 hover:text-indigo-900 mr-2">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button onclick="marcarComoPaga('${q._id}')" title="Marcar como paga"
+                                                        class="text-green-600 hover:text-green-900 mr-2">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button onclick="apagarQuota('${q._id}')" title="Apagar"
+                                                        class="text-red-600 hover:text-red-900">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+
+                // EVENT LISTENERS
+                document.getElementById('formGerarQuotas').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const ano = document.getElementById('anoQuotas').value;
+                    const valor = document.getElementById('valorQuotas').value;
+                    try {
+                        await apiFetch('/quotas/admin/gerar-anuais', {
+                            method: 'POST',
+                            body: JSON.stringify({ ano, valor })
+                        });
+                        showToast('Quotas geradas com sucesso!', 'success');
+                        loadQuotas(content);
+                    } catch (error) {
+                        showToast('Erro ao gerar quotas', 'error');
+                    }
+                });
+
+            } catch (error) {
+                showError(content, 'Erro ao carregar quotas');
+            }
+        }
+
+        // ========== FUNÇÃO: CRIAR QUOTA MANUAL MODAL ==========
+        window.criarQuotaManualModal = async function() {
+            // Buscar lista de associados
+            let associados = [];
+            try {
+                const data = await apiFetch('/admin/associados?limit=1000');
+                associados = data.associados || [];
+            } catch (error) {
+                showToast('Erro ao carregar associados', 'error');
+                return;
+            }
+
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 w-full max-w-md max-h-screen overflow-y-auto">
+                    <h3 class="text-xl font-bold mb-4">✚ Nova Quota</h3>
+                    <form id="formNovaQuota" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Associado *</label>
+                            <input type="text" id="associadoSearch" placeholder="Digita nome ou nº sócio..."
+                                   class="w-full border rounded-lg px-4 py-2" autocomplete="off">
+                            <div id="associadoDropdown" class="absolute bg-white border rounded-lg mt-1 w-80 max-h-48 overflow-y-auto hidden shadow-lg z-10"></div>
+                            <input type="hidden" id="associadoId" required>
+                            <p id="associadoSelected" class="text-sm text-gray-600 mt-1"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Ano</label>
+                            <input type="number" name="ano" value="${new Date().getFullYear()}" min="2020" max="2100"
+                                   class="w-full border rounded-lg px-4 py-2" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Valor (€)</label>
+                            <input type="number" name="valor" value="50" step="0.01" min="0"
+                                   class="w-full border rounded-lg px-4 py-2" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Data Vencimento</label>
+                            <input type="date" name="data_vencimento"
+                                   class="w-full border rounded-lg px-4 py-2" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Estado</label>
+                            <select name="estado" class="w-full border rounded-lg px-4 py-2" required>
+                                <option value="pendente">Pendente</option>
+                                <option value="pago">Pago</option>
+                                <option value="isento">Isento</option>
+                                <option value="cancelado">Cancelado</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-3">
+                            <button type="button" onclick="this.closest('.fixed').remove()"
+                                    class="flex-1 border rounded-lg px-4 py-2 hover:bg-gray-50">
+                                Cancelar
+                            </button>
+                            <button type="submit"
+                                    class="flex-1 bg-indigo-600 text-white rounded-lg px-4 py-2 hover:bg-indigo-700">
+                                Criar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Setup pesquisa de associados
+            const searchInput = document.getElementById('associadoSearch');
+            const dropdown = document.getElementById('associadoDropdown');
+            const hiddenId = document.getElementById('associadoId');
+            const selectedText = document.getElementById('associadoSelected');
+
+            searchInput.addEventListener('input', (e) => {
+                const valor = e.target.value.toLowerCase();
+
+                if (valor.length === 0) {
+                    dropdown.classList.add('hidden');
+                    return;
+                }
+
+                const filtered = associados.filter(a =>
+                    a.nome.toLowerCase().includes(valor) ||
+                    (a.numero_socio && a.numero_socio.toLowerCase().includes(valor))
+                );
+
+                if (filtered.length === 0) {
+                    dropdown.innerHTML = '<div class="p-3 text-gray-500 text-sm">Nenhum associado encontrado</div>';
+                } else {
+                    dropdown.innerHTML = filtered.map(a => `
+                        <div class="p-3 border-b hover:bg-indigo-50 cursor-pointer" data-id="${a._id}">
+                            <p class="font-medium">${a.nome}</p>
+                            <p class="text-xs text-gray-500">${a.numero_socio || '-'} | ${a.email}</p>
+                        </div>
+                    `).join('');
+
+                    // Adicionar event listeners aos itens
+                    dropdown.querySelectorAll('[data-id]').forEach(item => {
+                        item.addEventListener('click', () => {
+                            const id = item.getAttribute('data-id');
+                            const selected = associados.find(a => a._id === id);
+                            hiddenId.value = id;
+                            searchInput.value = selected.nome;
+                            selectedText.textContent = `✓ ${selected.nome} (${selected.numero_socio || 'sem nº'})`;
+                            dropdown.classList.add('hidden');
+                        });
+                    });
+                }
+
+                dropdown.classList.remove('hidden');
+            });
+
+            // Fechar dropdown ao clicar fora
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#associadoSearch') && !e.target.closest('#associadoDropdown')) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('formNovaQuota').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const associadoId = document.getElementById('associadoId').value;
+                if (!associadoId) {
+                    showToast('Selecione um associado', 'error');
+                    return;
+                }
+                const formData = new FormData(e.target);
+                const data = {
+                    associado_id: associadoId,
+                    ...Object.fromEntries(formData)
+                };
+                try {
+                    await apiFetch('/quotas/admin', {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                    showToast('Quota criada com sucesso!', 'success');
+                    modal.remove();
+                    loadQuotas(document.getElementById('contentArea'));
+                } catch (error) {
+                    showToast('Erro ao criar quota', 'error');
+                }
+            });
+        };
+
+        // ========== FUNÇÃO: EDITAR QUOTA ==========
+        window.editarQuota = async function(quotaId) {
+            try {
+                const quota = await apiFetch(`/quotas/admin/${quotaId}`);
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white rounded-lg p-6 w-full max-w-md">
+                        <h3 class="text-xl font-bold mb-4">✏️ Editar Quota</h3>
+                        <form id="formEditarQuota" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Associado</label>
+                                <input type="text" value="${quota.associado_id?.nome || '-'}" disabled
+                                       class="w-full border rounded-lg px-4 py-2 bg-gray-50">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Ano</label>
+                                <input type="number" name="ano" value="${quota.ano}" disabled
+                                       class="w-full border rounded-lg px-4 py-2 bg-gray-50">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Valor (€)</label>
+                                <input type="number" name="valor" value="${quota.valor}" step="0.01" min="0"
+                                       class="w-full border rounded-lg px-4 py-2" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Data Vencimento</label>
+                                <input type="date" name="data_vencimento" value="${quota.data_vencimento.split('T')[0]}"
+                                       class="w-full border rounded-lg px-4 py-2" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Estado</label>
+                                <select name="estado" class="w-full border rounded-lg px-4 py-2" required>
+                                    <option value="pendente" ${quota.estado === 'pendente' ? 'selected' : ''}>Pendente</option>
+                                    <option value="pago" ${quota.estado === 'pago' ? 'selected' : ''}>Pago</option>
+                                    <option value="isento" ${quota.estado === 'isento' ? 'selected' : ''}>Isento</option>
+                                    <option value="cancelado" ${quota.estado === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Observações</label>
+                                <textarea name="observacoes" rows="3"
+                                          class="w-full border rounded-lg px-4 py-2">${quota.observacoes || ''}</textarea>
+                            </div>
+                            <div class="flex gap-3">
+                                <button type="button" onclick="this.closest('.fixed').remove()"
+                                        class="flex-1 border rounded-lg px-4 py-2 hover:bg-gray-50">
+                                    Cancelar
+                                </button>
+                                <button type="submit"
+                                        class="flex-1 bg-indigo-600 text-white rounded-lg px-4 py-2 hover:bg-indigo-700">
+                                    Guardar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                document.getElementById('formEditarQuota').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const data = Object.fromEntries(formData);
+                    try {
+                        await apiFetch(`/quotas/admin/${quotaId}`, {
+                            method: 'PUT',
+                            body: JSON.stringify(data)
+                        });
+                        showToast('Quota atualizada com sucesso!', 'success');
+                        modal.remove();
+                        loadQuotas(document.getElementById('contentArea'));
+                    } catch (error) {
+                        showToast('Erro ao atualizar quota', 'error');
+                    }
+                });
+            } catch (error) {
+                showToast('Erro ao carregar quota', 'error');
+            }
+        };
+
+        // ========== FUNÇÃO: MARCAR COMO PAGA ==========
+        window.marcarComoPaga = async function(quotaId) {
+            if (!confirm('Marcar esta quota como paga?')) return;
+            try {
+                await apiFetch(`/quotas/admin/${quotaId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        estado: 'pago',
+                        data_pagamento: new Date().toISOString()
+                    })
+                });
+                showToast('Quota marcada como paga!', 'success');
+                loadQuotas(document.getElementById('contentArea'));
+            } catch (error) {
+                showToast('Erro ao atualizar quota', 'error');
+            }
+        };
+
+        // ========== FUNÇÃO: APAGAR QUOTA ==========
+        window.apagarQuota = async function(quotaId) {
+            if (!confirm('Tem a certeza que quer apagar esta quota?')) return;
+            try {
+                await apiFetch(`/quotas/admin/${quotaId}`, {
+                    method: 'DELETE'
+                });
+                showToast('Quota eliminada com sucesso!', 'success');
+                loadQuotas(document.getElementById('contentArea'));
+            } catch (error) {
+                showToast('Erro ao eliminar quota', 'error');
+            }
+        };
+
+        // ========== FUNÇÃO: APLICAR FILTROS ==========
+        window.aplicarFiltrosQuota = function() {
+            const associado = document.getElementById('filtroAssociado')?.value || '';
+            const ano = document.getElementById('filtroAno')?.value || '';
+            const estado = document.getElementById('filtroEstado')?.value || '';
+
+            const rows = document.querySelectorAll('#quotasTableBody tr');
+            let visivel = 0;
+
+            rows.forEach(row => {
+                const nomeAssociado = row.querySelector('td:nth-child(1)')?.textContent.toLowerCase() || '';
+                const anoQuota = row.querySelector('td:nth-child(2)')?.textContent.trim() || '';
+                const estadoQuota = row.querySelector('td:nth-child(4)')?.textContent.toLowerCase() || '';
+
+                const matchAssociado = nomeAssociado.includes(associado.toLowerCase());
+                const matchAno = !ano || anoQuota === ano;
+                const matchEstado = !estado || estadoQuota.includes(estado.toLowerCase());
+
+                if (matchAssociado && matchAno && matchEstado) {
+                    row.style.display = '';
+                    visivel++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            if (visivel === 0) {
+                const tbody = document.getElementById('quotasTableBody');
+                tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">Nenhuma quota encontrada</td></tr>';
+            }
+        };
+
+        async function loadNoticias(content) {
+            showLoading(content);
+            try {
+                const data = await apiFetch('/admin/noticias');
+        
+        let noticias = [];
+        
+        if (Array.isArray(data)) {
+            noticias = data;
+        } else if (data.noticias && Array.isArray(data.noticias)) {
+            noticias = data.noticias;
+        } else if (data.data && Array.isArray(data.data)) {
+            noticias = data.data;
+        } else {
+            console.error('Formato inesperado da API:', data);
+            noticias = [];
+        }
+        
+        if (noticias.length === 0) {
+            content.innerHTML = `
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b flex justify-between items-center">
+                        <h3 class="text-lg font-semibold">Gestão de Notícias</h3>
+                        <button onclick="novaNoticia()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                            <i class="fas fa-plus mr-2"></i>Nova Notícia
+                        </button>
+                    </div>
+                    <div class="p-6 text-center text-gray-500">
+                        <i class="fas fa-newspaper text-4xl mb-2 opacity-50"></i>
+                        <p>Nenhuma notícia encontrada</p>
+                        <button onclick="novaNoticia()" class="mt-4 text-indigo-600">Criar primeira notícia</button>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        content.innerHTML = `
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Gestão de Notícias</h3>
+                    <button onclick="novaNoticia()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                        <i class="fas fa-plus mr-2"></i>Nova Notícia
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid gap-6">
+                        ${noticias.map(n => `
+                            <div class="border rounded-lg p-4 flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <h4 class="font-semibold text-lg">${n.titulo || 'Sem título'}</h4>
+                                        <span class="px-2 py-1 text-xs rounded-full ${
+                                            n.destaque ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100'
+                                        }">
+                                            ${n.destaque ? 'Destaque' : 'Normal'}
+                                        </span>
+                                    </div>
+                                    <p class="text-gray-600 text-sm mb-2">${n.subtitulo || ''}</p>
+                                    <div class="flex items-center text-xs text-gray-500 space-x-4">
+                                        <span><i class="far fa-calendar mr-1"></i>${n.data_publicacao ? new Date(n.data_publicacao).toLocaleDateString('pt-PT') : '-'}</span>
+                                        <span><i class="far fa-user mr-1"></i>${n.autor?.nome || 'Admin'}</span>
+                                        <span><i class="far fa-eye mr-1"></i>${n.visualizacoes || 0} visualizações</span>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="editarNoticia('${n._id}')" 
+                                            class="text-indigo-600 hover:text-indigo-900">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="eliminarNoticia('${n._id}')" 
+                                            class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+            } catch (error) {
+                showError(content, 'Erro ao carregar notícias');
+            }
+        }
+
+        // Modal para novo associado
+        window.novoAssociado = function() {
+    // Função para gerar password aleatória
+    function gerarPasswordAleatoria() {
+        return Math.random().toString(36).slice(-8) + Math.floor(Math.random() * 1000);
+    }
+    
+    // Gerar password inicial
+    const passwordInicial = gerarPasswordAleatoria();
+    
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Novo Associado</h3>
+                <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="formNovoAssociado" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Nome *</label>
+                    <input type="text" name="nome" required class="w-full border rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Email *</label>
+                    <input type="email" name="email" required class="w-full border rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Password *</label>
+                    <div class="flex gap-2">
+                        <input type="text" name="password" value="${passwordInicial}" required class="flex-1 border rounded-lg px-4 py-2">
+                        <button type="button" onclick="this.previousElementSibling.value = gerarPasswordAleatoria()" 
+                                class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-300">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Clique no ícone para gerar nova password aleatória</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Telefone</label>
+                    <input type="text" name="telefone" class="w-full border rounded-lg px-4 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">NIF</label>
+                    <input type="text" name="nif" maxlength="9" pattern="\\d{9}" inputmode="numeric"
+                           title="Introduza 9 dígitos"
+                           placeholder="9 dígitos" class="w-full border rounded-lg px-4 py-2">
+                    <p class="text-xs text-gray-500 mt-1">Opcional — 9 dígitos</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Tipo</label>
+                    <select name="tipo" class="w-full border rounded-lg px-4 py-2">
+                        <option value="efetivo">Efetivo</option>
+                        <option value="honorario">Honorário</option>
+                        <option value="fundador">Fundador</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Nível de Acesso</label>
+                    <select name="role" class="w-full border rounded-lg px-4 py-2">
+                        <option value="associado">Associado Normal</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                
+                <div class="flex justify-end space-x-2 pt-4">
+                    <button type="button" onclick="this.closest('.fixed').remove()" 
+                            class="px-4 py-2 border rounded-lg hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                        Criar Associado
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Tornar a função global para ser usada no botão
+    window.gerarPasswordAleatoria = function() {
+        return Math.random().toString(36).slice(-8) + Math.floor(Math.random() * 1000);
+    };
+    
+    document.getElementById('formNovoAssociado').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const resultado = await apiFetch('/admin/associados', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            // Fechar o modal de criação
+            modal.remove();
+
+            // Abrir modal de credenciais
+            mostrarCredenciais(data.email, data.password, data.nome);
+
+            // Recarregar lista de associados
+            loadAssociados(document.getElementById('contentArea'));
+            showToast('Associado criado com sucesso!', 'success');
+        } catch (error) {
+            showToast('Erro ao criar associado', 'error');
+            console.error('Erro:', error);
+        }
+    });
+};
+
+function mostrarCredenciais(email, password, nome) {
+    const modalCredenciais = document.createElement('div');
+    modalCredenciais.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modalCredenciais.innerHTML = `
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <div class="text-center mb-4">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-check-circle text-green-600 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900">Associado Criado!</h3>
+                <p class="text-gray-600 text-sm">Guarde as credenciais para enviar ao associado.</p>
+            </div>
+            
+            <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                <p class="text-sm"><strong>Email:</strong> ${email}</p>
+                <p class="text-sm"><strong>Password:</strong> <span class="font-mono">${password}</span></p>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="copiarCredenciais('${email}', '${password}')" 
+                        class="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                    <i class="fas fa-copy mr-2"></i>Copiar
+                </button>
+                <button onclick="this.closest('.fixed').remove()" 
+                        class="flex-1 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modalCredenciais);
+}
+
+// Função para copiar as credenciais
+function copiarCredenciais(email, password) {
+    const texto = `Email: ${email}\nPassword: ${password}\n\nLink: https://ifpn-public.onrender.com/area-cliente/login.html`;
+    navigator.clipboard.writeText(texto);
+    alert('Credenciais copiadas para a área de transferência!');
+}
+
+window.eliminarAssociado = async function(id, nome) {
+    if (!confirm(`Tem certeza que deseja ELIMINAR PERMANENTEMENTE o associado "${nome}"?\n\nEsta ação não pode ser desfeita!`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`https://ifpn-public.onrender.com/api/admin/associados/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+            alert('Associado eliminado com sucesso!');
+            // Recarregar a lista
+            loadAssociados(document.getElementById('contentArea'));
+        } else {
+            const err = await response.json();
+            alert(err.error || 'Erro ao eliminar associado');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao eliminar associado');
+    }
+};
+
+function gerarPasswordAleatoriaInput() {
+    const novaPassword = Math.random().toString(36).slice(-8) + Math.floor(Math.random() * 1000);
+    document.getElementById('novaPassword').value = novaPassword;
+}
+
+
+        // Função para editar associado (abre modal)
+window.editarAssociado = async function(id) {
+    try {
+        // Buscar dados do associado
+        const response = await fetch(`https://ifpn-public.onrender.com/api/admin/associados/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) throw new Error('Erro ao carregar associado');
+        
+        const associado = await response.json();
+        
+        // Criar modal de edição
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">Editar Associado</h3>
+                    <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="formEditarAssociado" class="space-y-4">
+                    <input type="hidden" name="_id" value="${associado._id}">
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Nome *</label>
+                        <input type="text" name="nome" value="${associado.nome.replace(/"/g, '&quot;')}" required 
+                               class="w-full border rounded-lg px-4 py-2">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Email *</label>
+                        <input type="email" name="email" value="${associado.email}" required 
+                               class="w-full border rounded-lg px-4 py-2">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Nº Sócio</label>
+                        <input type="text" name="numero_socio" value="${associado.numero_socio || ''}" 
+                               class="w-full border rounded-lg px-4 py-2">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Telefone</label>
+                        <input type="text" name="telefone" value="${associado.telefone || ''}"
+                               class="w-full border rounded-lg px-4 py-2">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">NIF</label>
+                        <input type="text" name="nif" value="${associado.nif || ''}"
+                               maxlength="9" pattern="\\d{9}" inputmode="numeric"
+                               title="Introduza 9 dígitos"
+                               placeholder="9 dígitos" class="w-full border rounded-lg px-4 py-2">
+                        <p class="text-xs text-gray-500 mt-1">Opcional — 9 dígitos</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Tipo</label>
+                        <select name="tipo" class="w-full border rounded-lg px-4 py-2">
+                            <option value="efetivo" ${associado.tipo === 'efetivo' ? 'selected' : ''}>Efetivo</option>
+                            <option value="honorario" ${associado.tipo === 'honorario' ? 'selected' : ''}>Honorário</option>
+                            <option value="fundador" ${associado.tipo === 'fundador' ? 'selected' : ''}>Fundador</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Nível de Acesso</label>
+                        <select name="role" class="w-full border rounded-lg px-4 py-2">
+                            <option value="associado" ${associado.role === 'associado' ? 'selected' : ''}>Associado Normal</option>
+                            <option value="admin" ${associado.role === 'admin' ? 'selected' : ''}>Administrador</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Status</label>
+                        <select name="ativo" class="w-full border rounded-lg px-4 py-2">
+                            <option value="true" ${associado.ativo ? 'selected' : ''}>Ativo</option>
+                            <option value="false" ${!associado.ativo ? 'selected' : ''}>Inativo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" onclick="this.closest('.fixed').remove()" 
+                                class="px-4 py-2 border rounded-lg hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                            Guardar Alterações
+                        </button>
+                    </div>
+                </form>
+<div class="mt-4 pt-4 border-t">
+    <h4 class="font-medium text-gray-700 mb-3">Alterar Password</h4>
+    <div class="flex gap-2">
+        <input type="text" id="novaPassword" placeholder="Nova password" 
+               class="flex-1 border rounded-lg px-4 py-2">
+        <button onclick="gerarPasswordAleatoriaInput()" 
+                class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-300">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+        <button onclick="redefinirPassword('${associado._id}')" 
+                class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+            Redefinir
+        </button>
+    </div>
+</div>
+
+<div class="mt-4 pt-4 border-t">
+    <h4 class="font-medium text-red-600 mb-3">Zona de Risco</h4>
+    <button onclick="eliminarAssociado('${associado._id}', '${associado.nome}')" 
+            class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+        <i class="fas fa-trash mr-2"></i>Eliminar Associado
+    </button>
+    <p class="text-xs text-gray-500 mt-1">Esta ação é irreversível!</p>
+</div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Submeter formulário de edição
+        document.getElementById('formEditarAssociado').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = {
+                nome: formData.get('nome'),
+                email: formData.get('email'),
+                numero_socio: formData.get('numero_socio'),
+                telefone: formData.get('telefone'),
+                nif: formData.get('nif') || '',
+                tipo: formData.get('tipo'),
+                role: formData.get('role'),
+                ativo: formData.get('ativo') === 'true'
+            };
+            
+            try {
+                const response = await fetch(`https://ifpn-public.onrender.com/api/admin/associados/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    modal.remove();
+                    alert('Associado atualizado com sucesso!');
+                    loadAssociados(document.getElementById('contentArea')); // Recarregar lista
+                } else {
+                    const err = await response.json();
+                    alert(err.error || 'Erro ao atualizar');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar associado');
+            }
+        });
+        
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao carregar dados do associado');
+    }
+};
+
+ window.redefinirPassword = async function(assocId) {
+            const novaPassword = document.getElementById('novaPassword').value;
+            if (!novaPassword || novaPassword.length < 6) {
+                alert('A password deve ter pelo menos 6 caracteres');
+                return;
+            }
+            
+            const resp = await fetch(`https://ifpn-public.onrender.com/api/admin/associados/${assocId}/reset-password`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ novaPassword })
+            });
+            
+            if (resp.ok) {
+                alert(`Password alterada com sucesso!\n\nNova password: ${novaPassword}`);
+                document.getElementById('novaPassword').value = '';
+            } else {
+                alert('Erro ao redefinir password');
+            }
+        };
+
+
+window.verQuotasAssociado = async function(associadoId, nome) {
+    try {
+        const response = await fetch(`https://ifpn-public.onrender.com/api/quotas/admin/associado/${associadoId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) throw new Error('Erro ao carregar quotas');
+        
+        const data = await response.json();
+        
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">Gestão de Quotas - ${nome}</h3>
+                    <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Resumo -->
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <div class="bg-indigo-50 rounded-lg p-3 text-center">
+                        <p class="text-2xl font-bold text-indigo-600">${data.estatisticas.total}</p>
+                        <p class="text-xs text-gray-600">Total</p>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-3 text-center">
+                        <p class="text-2xl font-bold text-green-600">${data.estatisticas.pagas}</p>
+                        <p class="text-xs text-gray-600">Pagas</p>
+                    </div>
+                    <div class="bg-red-50 rounded-lg p-3 text-center">
+                        <p class="text-2xl font-bold text-red-600">${data.estatisticas.pendentes}</p>
+                        <p class="text-xs text-gray-600">Pendentes</p>
+                    </div>
+                    <div class="bg-yellow-50 rounded-lg p-3 text-center">
+                        <p class="text-2xl font-bold text-yellow-600">${data.estatisticas.valor_pendente}€</p>
+                        <p class="text-xs text-gray-600">Valor Pendente</p>
+                    </div>
+                </div>
+                
+                <!-- Botões de ação em lote -->
+                <div class="flex gap-3 mb-4">
+                    <button onclick="selecionarTodasQuotas()" class="bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-sm">
+                        Selecionar todas
+                    </button>
+                    <button onclick="pagarQuotasSelecionadas('${associadoId}', '${nome}')" class="bg-green-600 text-white px-3 py-1 rounded-lg text-sm">
+                        Pagar selecionadas
+                    </button>
+                </div>
+                
+                <!-- Lista de quotas -->
+                <div class="border rounded-lg overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="w-10 px-4 py-2"><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelecionarTodas()"></th>
+                                <th class="px-4 py-2 text-left">Ano/Mês</th>
+                                <th class="px-4 py-2 text-left">Valor</th>
+                                <th class="px-4 py-2 text-left">Vencimento</th>
+                                <th class="px-4 py-2 text-left">Estado</th>
+                                <th class="px-4 py-2 text-left">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.quotas.map(q => `
+                                <tr class="border-t">
+                                    <td class="px-4 py-2">
+                                        <input type="checkbox" class="quota-checkbox" data-id="${q._id}" data-estado="${q.estado}" ${q.estado === 'pago' ? 'disabled' : ''}>
+                                    </td>
+                                    <td class="px-4 py-2">${q.ano}${q.mes ? `/${q.mes.toString().padStart(2, '0')}` : ''}</td>
+                                    <td class="px-4 py-2">${q.valor}€</td>
+                                    <td class="px-4 py-2">${new Date(q.data_vencimento).toLocaleDateString('pt-PT')}</td>
+                                    <td class="px-4 py-2">
+                                        <span class="px-2 py-1 text-xs rounded-full ${q.estado === 'pago' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                            ${q.estado === 'pago' ? 'Pago' : 'Pendente'}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        ${q.estado !== 'pago' ? 
+                                            `<button onclick="registarPagamento('${q._id}', '${associadoId}', '${nome}')" 
+                                                class="bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-indigo-700">
+                                                <i class="fas fa-check-circle mr-1"></i>Registar Pagamento
+                                            </button>` : 
+                                            '<span class="text-gray-400 text-sm">Pago</span>'
+                                        }
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-700">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Para registar um pagamento, selecione a quota e clique em "Registar Pagamento" ou use "Pagar selecionadas".
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Funções auxiliares do modal
+        window.toggleSelecionarTodas = function() {
+            const selectAll = document.getElementById('selectAllCheckbox');
+            const checkboxes = document.querySelectorAll('.quota-checkbox:not(:disabled)');
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        };
+        
+        window.selecionarTodasQuotas = function() {
+            const checkboxes = document.querySelectorAll('.quota-checkbox:not(:disabled)');
+            checkboxes.forEach(cb => cb.checked = true);
+            const selectAll = document.getElementById('selectAllCheckbox');
+            if (selectAll) selectAll.checked = true;
+        };
+        
+        window.pagarQuotasSelecionadas = async function(assocId, nomeAssoc) {
+            const checkboxes = document.querySelectorAll('.quota-checkbox:checked:not(:disabled)');
+            const quotasIds = Array.from(checkboxes).map(cb => cb.dataset.id);
+            
+            if (quotasIds.length === 0) {
+                alert('Selecione pelo menos uma quota pendente');
+                return;
+            }
+            
+            const metodo = prompt('Método de pagamento (dinheiro, transferencia, mbway, multibanco):', 'transferencia');
+            if (!metodo) return;
+            
+            if (!confirm(`Confirmar pagamento de ${quotasIds.length} quota(s) por ${metodo}?`)) return;
+            
+            try {
+                const result = await apiFetch('/quotas/admin/pagamento-lote', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        quotasIds,
+                        metodo_pagamento: metodo,
+                        referencia_pagamento: `ADMIN-${Date.now()}`
+                    })
+                });
+
+                showToast(`${quotasIds.length} quota(s) paga(s) com sucesso!`, 'success');
+                modal.remove();
+                window.verQuotasAssociado(assocId, nomeAssoc);
+            } catch (error) {
+                alert('Erro ao processar pagamento');
+            }
+        };
+        
+        window.registarPagamento = async function(quotaId, assocId, nomeAssoc) {
+            const metodo = prompt('Método de pagamento (dinheiro, transferencia, mbway, multibanco):', 'transferencia');
+            if (!metodo) return;
+            
+            if (!confirm('Confirmar registo de pagamento?')) return;
+            
+            try {
+                const response = await fetch(`https://ifpn-public.onrender.com/api/quotas/admin/${quotaId}/pagar`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        metodo_pagamento: metodo,
+                        referencia_pagamento: `ADMIN-${Date.now()}`
+                    })
+                });
+                
+                if (response.ok) {
+                    alert('Pagamento registado com sucesso!');
+                    modal.remove();
+                    window.verQuotasAssociado(assocId, nomeAssoc);
+                } else {
+                    alert('Erro ao registar pagamento');
+                }
+            } catch (error) {
+                alert('Erro ao registar pagamento');
+            }
+        };
+        
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao carregar quotas');
+    }
+};
+
+        window.enviarLembrete = async function(associadoId) {
+            try {
+                const result = await apiFetch('/admin/comunicacoes/email', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        assunto: 'Lembrete de quotas em atraso',
+                        mensagem: 'Venha por este meio lembrar que tem quotas em atraso no IFPN. Por favor, regularize a sua situação.',
+                        destinatarios: [associadoId]
+                    })
+                });
+                showToast('Lembrete enviado com sucesso!', 'success');
+            } catch (error) {
+                showToast('Erro ao enviar lembrete', 'error');
+            }
+        };
+
+        // ========== FUNÇÕES DE NOTÍCIAS ==========
+
+window.novaNoticia = function() {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Nova Notícia</h3>
+                <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="formNovaNoticia" class="space-y-4">
+                <div><label class="block text-sm font-medium mb-1">Título *</label><input type="text" name="titulo" required class="w-full border rounded-lg px-4 py-2"></div>
+                <div><label class="block text-sm font-medium mb-1">Subtítulo</label><input type="text" name="subtitulo" class="w-full border rounded-lg px-4 py-2"></div>
+                <div><label class="block text-sm font-medium mb-1">Imagem (URL)</label><input type="text" name="imagem_destaque" class="w-full border rounded-lg px-4 py-2"></div>
+                <div><label class="block text-sm font-medium mb-1">Categoria</label><select name="categorias" class="w-full border rounded-lg px-4 py-2"><option value="noticia">Notícia</option><option value="evento">Evento</option><option value="comunicado">Comunicado</option></select></div>
+                <div><label class="block text-sm font-medium mb-1">Conteúdo *</label><textarea name="conteudo" rows="6" required class="w-full border rounded-lg px-4 py-2"></textarea></div>
+                
+                <!-- Secção Multimédia -->
+                <div class="border-t pt-4">
+                    <h4 class="font-semibold mb-3 flex items-center"><i class="fas fa-link text-indigo-600 mr-2"></i>Link Multimédia (Opcional)</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Tipo</label>
+                            <select name="multimedia_tipo" class="multimedia-tipo w-full border rounded-lg px-4 py-2">
+                                <option value="nenhum">Nenhum</option>
+                                <option value="audio">🎵 Áudio</option>
+                                <option value="video">📺 Vídeo</option>
+                                <option value="link">🔗 Link Externo</option>
+                            </select>
+                        </div>
+                        
+                        <div class="multimedia-url">
+                            <label class="block text-sm font-medium mb-1">URL do conteúdo</label>
+                            <input type="text" name="multimedia_url" placeholder="https://audiomack.com/... ou https://youtu.be/..." 
+                                   class="w-full border rounded-lg px-4 py-2">
+                        </div>
+                        
+                        <div class="multimedia-titulo">
+                            <label class="block text-sm font-medium mb-1">Título (opcional)</label>
+                            <input type="text" name="multimedia_titulo" placeholder="Ex: Vídeo da apresentação" 
+                                   class="w-full border rounded-lg px-4 py-2">
+                        </div>
+                    </div>
+                </div>
+                
+                <div><label class="flex items-center"><input type="checkbox" name="destaque" class="mr-2"> Destacar esta notícia</label></div>
+                <div><label class="block text-sm font-medium mb-1">Estado</label><select name="estado" class="w-full border rounded-lg px-4 py-2"><option value="publicada">Publicar agora</option><option value="rascunho">Guardar rascunho</option></select></div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="this.closest('.fixed').remove()" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Publicar</button>
+                </div>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    // ========== SUBMETER FORMULÁRIO ==========
+    const form = document.getElementById('formNovaNoticia');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            data.categorias = [data.categorias];
+            data.destaque = data.destaque === 'on';
+            
+            // Montar objeto multimedia (apenas com campos que existem)
+            data.multimedia = {
+                tipo: data.multimedia_tipo || 'nenhum',
+                url: data.multimedia_url || '',
+                titulo: data.multimedia_titulo || ''
+            };
+            
+            // Limpar campos temporários
+            delete data.multimedia_tipo;
+            delete data.multimedia_url;
+            delete data.multimedia_titulo;
+            
+            try {
+                await apiFetch('/admin/noticias', {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                showToast('Notícia criada com sucesso!', 'success');
+                modal.remove();
+                loadNoticias(document.getElementById('contentArea'));
+            } catch (error) {
+                showToast('Erro ao criar notícia', 'error');
+            }
+        });
+    }
+};
+
+window.editarNoticia = async function(id) {
+    try {
+        const noticia = await apiFetch(`/admin/noticias/${id}`);
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">Editar Notícia</h3>
+                    <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form id="formEditarNoticia" class="space-y-4">
+                    <input type="hidden" name="_id" value="${noticia._id}">
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Título</label>
+                        <input type="text" name="titulo" value="${noticia.titulo.replace(/"/g, '&quot;')}" class="w-full border rounded-lg px-4 py-2">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Subtítulo</label>
+                        <input type="text" name="subtitulo" value="${noticia.subtitulo || ''}" class="w-full border rounded-lg px-4 py-2">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Imagem (URL)</label>
+                        <input type="text" name="imagem_destaque" value="${noticia.imagem_destaque || ''}" class="w-full border rounded-lg px-4 py-2">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Categoria</label>
+                        <select name="categorias" class="w-full border rounded-lg px-4 py-2">
+                            <option value="noticia" ${noticia.categorias?.[0] === 'noticia' ? 'selected' : ''}>Notícia</option>
+                            <option value="evento" ${noticia.categorias?.[0] === 'evento' ? 'selected' : ''}>Evento</option>
+                            <option value="comunicado" ${noticia.categorias?.[0] === 'comunicado' ? 'selected' : ''}>Comunicado</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Conteúdo</label>
+                        <textarea name="conteudo" rows="6" class="w-full border rounded-lg px-4 py-2">${noticia.conteudo || ''}</textarea>
+                    </div>
+                    
+                    <!-- Secção Multimédia -->
+                    <div class="border-t pt-4">
+                        <h4 class="font-semibold mb-3 flex items-center"><i class="fas fa-link text-indigo-600 mr-2"></i>Link Multimédia (Opcional)</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Tipo</label>
+                                <select name="multimedia_tipo" class="w-full border rounded-lg px-4 py-2">
+                                    <option value="nenhum" ${!noticia.multimedia?.tipo || noticia.multimedia?.tipo === 'nenhum' ? 'selected' : ''}>Nenhum</option>
+                                    <option value="audio" ${noticia.multimedia?.tipo === 'audio' ? 'selected' : ''}>🎵 Áudio</option>
+                                    <option value="video" ${noticia.multimedia?.tipo === 'video' ? 'selected' : ''}>📺 Vídeo</option>
+                                    <option value="link" ${noticia.multimedia?.tipo === 'link' ? 'selected' : ''}>🔗 Link Externo</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-1">URL do conteúdo</label>
+                                <input type="text" name="multimedia_url" value="${noticia.multimedia?.url || ''}" 
+                                       placeholder="https://audiomack.com/... ou https://youtu.be/..." 
+                                       class="w-full border rounded-lg px-4 py-2">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Título (opcional)</label>
+                                <input type="text" name="multimedia_titulo" value="${noticia.multimedia?.titulo || ''}" 
+                                       placeholder="Ex: Vídeo da apresentação" 
+                                       class="w-full border rounded-lg px-4 py-2">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="destaque" class="mr-2" ${noticia.destaque ? 'checked' : ''}> Destacar
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Estado</label>
+                        <select name="estado" class="w-full border rounded-lg px-4 py-2">
+                            <option value="publicada" ${noticia.estado === 'publicada' ? 'selected' : ''}>Publicada</option>
+                            <option value="rascunho" ${noticia.estado === 'rascunho' ? 'selected' : ''}>Rascunho</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex justify-end gap-3">
+                        <button type="button" onclick="this.closest('.fixed').remove()" class="px-4 py-2 border rounded-lg">Cancelar</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // ========== SUBMETER FORMULÁRIO ==========
+        const form = document.getElementById('formEditarNoticia');
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                data.categorias = [data.categorias];
+                data.destaque = data.destaque === 'on';
+                
+                // Montar objeto multimedia
+                data.multimedia = {
+                    tipo: data.multimedia_tipo || 'nenhum',
+                    url: data.multimedia_url || '',
+                    titulo: data.multimedia_titulo || ''
+                };
+                
+                // Limpar campos temporários
+                delete data.multimedia_tipo;
+                delete data.multimedia_url;
+                delete data.multimedia_titulo;
+                
+                try {
+                    await apiFetch(`/admin/noticias/${id}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(data)
+                    });
+                    showToast('Notícia atualizada com sucesso!', 'success');
+                    modal.remove();
+                    loadNoticias(document.getElementById('contentArea'));
+                } catch (error) {
+                    showToast('Erro ao atualizar notícia', 'error');
+                }
+            });
+        }
+    } catch (error) {
+        showToast('Erro ao carregar notícia', 'error');
+        console.error('Erro ao carregar notícia:', error);
+    }
+};
+
+window.eliminarNoticia = async function(id) {
+    if (!confirm('Eliminar esta notícia?')) return;
+    try {
+        await apiFetch(`/admin/noticias/${id}`, {
+            method: 'DELETE'
+        });
+        showToast('Notícia eliminada com sucesso!', 'success');
+        loadNoticias(document.getElementById('contentArea'));
+    } catch (error) {
+        showToast('Erro ao eliminar notícia', 'error');
+    }
+};
+
+
+async function loadContacto(content) {
+    showLoading(content);
+    try {
+        const data = await apiFetch('/admin/contacto');
+        
+        // Atualizar badge no menu
+        const badge = document.getElementById('badgeMensagens');
+        if (data.estatisticas.nao_lidas > 0) {
+            badge.textContent = data.estatisticas.nao_lidas;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+        
+        content.innerHTML = `
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+                <!-- Cards de estatísticas -->
+                <div class="bg-white rounded-xl shadow p-4 text-center">
+                    <p class="text-2xl font-bold text-indigo-600">${data.estatisticas.total}</p>
+                    <p class="text-sm text-gray-500">Total</p>
+                </div>
+                <div class="bg-white rounded-xl shadow p-4 text-center">
+                    <p class="text-2xl font-bold text-red-600">${data.estatisticas.nao_lidas}</p>
+                    <p class="text-sm text-gray-500">Não lidas</p>
+                </div>
+                <div class="bg-white rounded-xl shadow p-4 text-center">
+                    <p class="text-2xl font-bold text-yellow-600">${data.estatisticas.lidas}</p>
+                    <p class="text-sm text-gray-500">Lidas</p>
+                </div>
+                <div class="bg-white rounded-xl shadow p-4 text-center">
+                    <p class="text-2xl font-bold text-green-600">${data.estatisticas.respondidas}</p>
+                    <p class="text-sm text-gray-500">Respondidas</p>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow">
+                <div class="p-4 border-b flex flex-wrap gap-4 justify-between items-center">
+                    <div class="flex gap-2">
+                        <select id="statusFilter" class="border rounded-lg px-4 py-2">
+                            <option value="todos">Todos</option>
+                            <option value="nao_lida">Não lidas</option>
+                            <option value="lida">Lidas</option>
+                            <option value="respondida">Respondidas</option>
+                            <option value="arquivada">Arquivadas</option>
+                        </select>
+                        <input type="text" id="searchInput" placeholder="Pesquisar..." 
+                               class="border rounded-lg px-4 py-2 w-64">
+                    </div>
+                </div>
+                
+                <div id="mensagensList" class="divide-y">
+                    ${data.mensagens.map(m => `
+                        <div class="p-4 hover:bg-gray-50 cursor-pointer" onclick="abrirMensagem('${m._id}')">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="font-semibold">${m.nome}</h3>
+                                        <span class="text-xs text-gray-500">${m.email}</span>
+                                        ${m.status === 'nao_lida' ? 
+                                            '<span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">Nova</span>' : ''}
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">${m.assunto}</p>
+                                    <p class="text-gray-500 text-sm mt-1">${m.mensagem.substring(0, 100)}...</p>
+                                </div>
+                                <div class="text-right text-xs text-gray-400">
+                                    ${new Date(m.createdAt).toLocaleDateString('pt-PT')}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div id="pagination" class="p-4 border-t flex justify-center gap-2"></div>
+            </div>
+        `;
+        
+        // Modal para ver detalhes
+        const modal = document.createElement('div');
+        modal.id = 'mensagemModal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4';
+        modal.innerHTML = `
+            <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h2 id="modalTitulo" class="text-xl font-bold">-</h2>
+                        <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-2xl"></i>
+                        </button>
+                    </div>
+                    <div class="space-y-4">
+                        <div><label class="font-medium">Email:</label> <span id="modalEmail"></span></div>
+                        <div><label class="font-medium">Telefone:</label> <span id="modalTelefone"></span></div>
+                        <div><label class="font-medium">Assunto:</label> <span id="modalAssunto"></span></div>
+                        <div><label class="font-medium">Data:</label> <span id="modalData"></span></div>
+                        <div><label class="font-medium">Mensagem:</label> <p id="modalMensagem" class="bg-gray-50 p-4 rounded-lg mt-1"></p></div>
+                        <div class="border-t pt-4">
+                            <label class="font-medium">Status:</label>
+                            <select id="modalStatus" class="ml-2 border rounded-lg px-2 py-1">
+                                <option value="nao_lida">Não lida</option>
+                                <option value="lida">Lida</option>
+                                <option value="respondida">Respondida</option>
+                                <option value="arquivada">Arquivada</option>
+                            </select>
+                            <button onclick="atualizarStatus()" class="ml-2 bg-indigo-600 text-white px-3 py-1 rounded-lg">Atualizar</button>
+                        </div>
+                        <div>
+                            <label class="font-medium">Resposta (opcional):</label>
+                            <textarea id="respostaTexto" rows="3" class="w-full border rounded-lg px-3 py-2 mt-1"></textarea>
+                            <button onclick="marcarRespondida()" class="mt-2 bg-green-600 text-white px-4 py-2 rounded-lg">Marcar como respondida</button>
+                        </div>
+                        <div class="flex justify-end space-x-2 pt-4 border-t">
+                            <button onclick="eliminarMensagem()" class="bg-red-600 text-white px-4 py-2 rounded-lg">Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Variáveis globais para o modal
+        window.mensagemAtual = null;
+        
+        window.abrirMensagem = async function(id) {
+    try {
+        console.log('Abrir mensagem com ID:', id);
+
+        const m = await apiFetch(`/admin/contacto/${id}`);
+        
+        // 👇 GUARDAR A MENSAGEM CORRETAMENTE
+        window.mensagemAtual = m;
+        console.log('Mensagem guardada:', window.mensagemAtual);
+        
+        // Preencher o modal
+        document.getElementById('modalTitulo').textContent = m.nome;
+        document.getElementById('modalEmail').textContent = m.email;
+        document.getElementById('modalTelefone').textContent = m.telefone || 'Não fornecido';
+        document.getElementById('modalAssunto').textContent = traduzirAssunto(m.assunto);
+        document.getElementById('modalData').textContent = new Date(m.createdAt).toLocaleString('pt-PT');
+        document.getElementById('modalMensagem').textContent = m.mensagem;
+        document.getElementById('modalStatus').value = m.status;
+        document.getElementById('respostaTexto').value = m.resposta?.texto || '';
+        
+        // Mostrar modal
+        document.getElementById('mensagemModal').classList.remove('hidden');
+        document.getElementById('mensagemModal').classList.add('flex');
+        
+    } catch (error) {
+        console.error('Erro:', error);
+        showToast('Erro ao carregar mensagem', 'error');
+    }
+};
+
+// Função auxiliar para traduzir assunto
+function traduzirAssunto(assunto) {
+    const assuntos = {
+        'informacoes': 'Informações',
+        'associar': 'Quero associar-me',
+        'voluntariado': 'Voluntariado',
+        'parceria': 'Parceria',
+        'evento': 'Evento',
+        'outro': 'Outro'
+    };
+    return assuntos[assunto] || assunto;
+}
+        
+        window.fecharModal = function() {
+            document.getElementById('mensagemModal').classList.add('hidden');
+            document.getElementById('mensagemModal').classList.remove('flex');
+        };
+        
+        window.atualizarStatus = async function() {
+            const status = document.getElementById('modalStatus').value;
+            await fetch(`https://ifpn-public.onrender.com/api/admin/contacto/${window.mensagemAtual._id}/status`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            });
+            fecharModal();
+            loadContacto(content);
+        };
+        
+        window.marcarRespondida = async function() {
+            const resposta = document.getElementById('respostaTexto').value;
+            await fetch(`https://ifpn-public.onrender.com/api/admin/contacto/${window.mensagemAtual._id}/responder`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ resposta })
+            });
+            fecharModal();
+            loadContacto(content);
+        };
+        
+        window.eliminarMensagem = async function() {
+            if (!confirm('Tem certeza que deseja eliminar esta mensagem?')) return;
+            await fetch(`https://ifpn-public.onrender.com/api/admin/contacto/${window.mensagemAtual._id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            fecharModal();
+            loadContacto(content);
+        };
+        
+        // Filtros e paginação
+        document.getElementById('statusFilter').addEventListener('change', () => carregarContactoComFiltros(content));
+        document.getElementById('searchInput').addEventListener('input', () => carregarContactoComFiltros(content));
+        
+    } catch (error) {
+        showError(content, 'Erro ao carregar mensagens');
+    }
+}
+
+async function carregarContactoComFiltros(content) {
+    const status = document.getElementById('statusFilter').value;
+    const search = document.getElementById('searchInput').value;
+
+    let endpoint = '/admin/contacto?';
+    if (status !== 'todos') endpoint += `status=${status}&`;
+    if (search) endpoint += `search=${encodeURIComponent(search)}&`;
+
+    try {
+        const data = await apiFetch(endpoint);
+    
+    const container = document.getElementById('mensagensList');
+    container.innerHTML = data.mensagens.map(m => `
+        <div class="p-4 hover:bg-gray-50 cursor-pointer" onclick="abrirMensagem('${m._id}')">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="font-semibold">${m.nome}</h3>
+                    <p class="text-sm text-gray-600">${m.assunto}</p>
+                </div>
+                <div class="text-right text-xs text-gray-400">
+                    ${new Date(m.createdAt).toLocaleDateString('pt-PT')}
+                </div>
+            </div>
+        </div>
+    `).join('');
+    } catch (error) {
+        showToast('Erro ao filtrar mensagens', 'error');
+        console.error('Erro:', error);
+    }
+}
+
+async function loadEventos(content) {
+    showLoading(content);
+    try {
+        // Buscar projetos e eventos em paralelo
+        const [projetos, eventos] = await Promise.all([
+            apiFetch('/projetos/admin/todos'),
+            apiFetch('/eventos/admin/todos')
+        ]);
+
+        content.innerHTML = `
+            <div class="bg-white rounded-xl shadow">
+                <div class="p-6 border-b flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Gestão de Eventos</h3>
+                    <button onclick="novoEvento()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                        <i class="fas fa-plus mr-2"></i>Novo Evento
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Título</th>
+                                    <th class="px-4 py-2 text-left">Projeto</th>
+                                    <th class="px-4 py-2 text-left">Data</th>
+                                    <th class="px-4 py-2 text-left">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${eventos.map(e => `
+                                    <tr class="border-t">
+                                        <td class="px-4 py-2">${escapeHtml(e.titulo)}</td>
+                                        <td class="px-4 py-2">${e.projeto_nome ? escapeHtml(e.projeto_nome) : '-'}</td>
+                                        <td class="px-4 py-2">${new Date(e.data_inicio).toLocaleDateString('pt-PT')}</td>
+                                        <td class="px-4 py-2">
+                                            <button onclick="verInscritos('${e._id}', '${escapeHtml(e.titulo)}')" class="text-green-600 hover:text-green-800 mr-2" title="Ver inscritos"><i class="fas fa-users"></i></button>
+                                            <button onclick="editarEvento('${e._id}')" class="text-indigo-600 mr-2"><i class="fas fa-edit"></i></button>
+                                            <button onclick="eliminarEvento('${e._id}')" class="text-red-600"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // ========== NOVO EVENTO (sem tipo) ==========
+        window.novoEvento = function() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <h3 class="text-xl font-bold mb-4">Novo Evento</h3>
+                    <form id="formEvento" class="space-y-4">
+                        <div>
+                            <label>Projeto (opcional)</label>
+                            <select name="projeto_id" class="w-full border rounded px-3 py-2">
+                                <option value="">-- Sem projeto associado --</option>
+                                ${projetos.map(p => `<option value="${p._id}">${escapeHtml(p.titulo)}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label>Título *</label>
+                            <input type="text" name="titulo" required class="w-full border rounded px-3 py-2">
+                        </div>
+                        <div>
+                            <label>Descrição *</label>
+                            <textarea name="descricao" rows="3" required class="w-full border rounded px-3 py-2"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label>Data e Hora de Início *</label><input type="datetime-local" name="data_inicio" required class="w-full border rounded px-3 py-2"></div>
+                            <div><label>Data e Hora de Fim</label><input type="datetime-local" name="data_fim" class="w-full border rounded px-3 py-2"></div>
+                        </div>
+                        <div>
+                            <label>Local</label>
+                            <input type="text" name="local" placeholder="Ex: Auditório, Online" class="w-full border rounded px-3 py-2">
+                        </div>
+                        <div>
+                            <label>Capacidade</label>
+                            <input type="number" name="capacidade" class="w-full border rounded px-3 py-2">
+                        </div>
+                        <div>
+                            <label>Imagem (URL)</label>
+                            <input type="text" name="imagem" class="w-full border rounded px-3 py-2">
+                        </div>
+                        <div class="flex justify-end gap-3 pt-4">
+                            <button type="button" onclick="this.closest('.fixed').remove()" class="px-4 py-2 border rounded">Cancelar</button>
+                            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded">Criar</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            document.getElementById('formEvento').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                if (data.local) data.local = { nome: data.local };
+                // Remover campos vazios
+                if (!data.projeto_id) delete data.projeto_id;
+
+                try {
+                    await apiFetch('/eventos/admin', {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                    showToast('Evento criado com sucesso!', 'success');
+                    modal.remove();
+                    loadEventos(content);
+                } catch (error) {
+                    showToast('Erro ao criar evento', 'error');
+                }
+            });
+        };
+
+        // ========== EDITAR EVENTO (sem tipo) ==========
+        window.editarEvento = async function(eventoId) {
+            try {
+                // Carregar evento e projetos em paralelo
+                const [evento, projetosLocal] = await Promise.all([
+                    apiFetch(`/eventos/admin/${eventoId}`),
+                    apiFetch('/projetos/admin/todos')
+                ]);
+
+                // Determinar ID do projeto associado
+                let projetoIdSelecionado = null;
+                if (evento.projeto_id) {
+                    projetoIdSelecionado = evento.projeto_id._id || evento.projeto_id;
+                }
+
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <h3 class="text-xl font-bold mb-4">Editar Evento</h3>
+                        <form id="formEditarEvento" class="space-y-4">
+                            <input type="hidden" name="evento_id" value="${evento._id}">
+                            <div>
+                                <label>Projeto (opcional)</label>
+                                <select name="projeto_id" class="w-full border rounded px-3 py-2">
+                                    <option value="">-- Sem projeto associado --</option>
+                                    ${projetosLocal.map(p => `
+                                        <option value="${p._id}" ${projetoIdSelecionado && projetoIdSelecionado.toString() === p._id.toString() ? 'selected' : ''}>
+                                            ${escapeHtml(p.titulo)}
+                                        </option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label>Título *</label>
+                                <input type="text" name="titulo" value="${escapeHtml(evento.titulo)}" required class="w-full border rounded px-3 py-2">
+                            </div>
+                            <div>
+                                <label>Descrição *</label>
+                                <textarea name="descricao" rows="3" required class="w-full border rounded px-3 py-2">${escapeHtml(evento.descricao)}</textarea>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div><label>Data e Hora de Início *</label><input type="datetime-local" name="data_inicio" value="${evento.data_inicio ? new Date(evento.data_inicio).toISOString().slice(0,16) : ''}" required class="w-full border rounded px-3 py-2"></div>
+                                <div><label>Data e Hora de Fim</label><input type="datetime-local" name="data_fim" value="${evento.data_fim ? new Date(evento.data_fim).toISOString().slice(0,16) : ''}" class="w-full border rounded px-3 py-2"></div>
+                            </div>
+                            <div>
+                                <label>Local</label>
+                                <input type="text" name="local" value="${evento.local?.nome || ''}" placeholder="Ex: Auditório, Online" class="w-full border rounded px-3 py-2">
+                            </div>
+                            <div>
+                                <label>Capacidade</label>
+                                <input type="number" name="capacidade" value="${evento.capacidade || 0}" class="w-full border rounded px-3 py-2">
+                            </div>
+                            <div>
+                                <label>Imagem (URL)</label>
+                                <input type="text" name="imagem" value="${evento.imagem || ''}" class="w-full border rounded px-3 py-2">
+                            </div>
+                            <div class="flex justify-end gap-3 pt-4">
+                                <button type="button" onclick="this.closest('.fixed').remove()" class="px-4 py-2 border rounded">Cancelar</button>
+                                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded">Guardar</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                document.getElementById('formEditarEvento').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const data = Object.fromEntries(formData.entries());
+                    if (data.local) data.local = { nome: data.local };
+                    if (!data.projeto_id) delete data.projeto_id;
+
+                    const resp = await fetch(`https://ifpn-public.onrender.com/api/eventos/admin/${eventoId}`, {
+                        method: 'PUT',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    if (resp.ok) {
+                        modal.remove();
+                        loadEventos(content);
+                    } else {
+                        const err = await resp.json();
+                        alert('Erro ao atualizar evento: ' + (err.error || 'Erro desconhecido'));
+                    }
+                });
+            } catch (error) {
+                console.error('Erro ao editar evento:', error);
+                alert('Erro ao carregar dados do evento');
+            }
+        };
+
+        // ========== ELIMINAR EVENTO ==========
+        window.eliminarEvento = async function(id) {
+            if (!confirm('Eliminar este evento?')) return;
+            const resp = await fetch(`https://ifpn-public.onrender.com/api/eventos/admin/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (resp.ok) loadEventos(content);
+            else alert('Erro ao eliminar evento');
+        };
+
+        // ========== VER INSCRITOS ==========
+        window.verInscritos = async function(eventoId, eventoTitulo) {
+            try {
+                const response = await fetch(`https://ifpn-public.onrender.com/api/eventos/admin/${eventoId}/inscritos`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error('Erro ao carregar inscrições');
+                const data = await response.json();
+
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold">Inscrições - ${escapeHtml(eventoTitulo)}</h3>
+                            <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="mb-4 p-3 bg-gray-100 rounded-lg">
+                            <p class="font-semibold">Total de inscritos: ${data.total_inscritos}</p>
+                        </div>
+                        ${data.inscritos.length === 0 ?
+                            '<p class="text-gray-500 text-center py-8">Nenhuma inscrição ainda</p>' :
+                            `<div class="space-y-2">
+                                ${data.inscritos.map(insc => `
+                                    <div class="border rounded-lg p-3 flex justify-between items-center">
+                                        <div>
+                                            <p class="font-medium">${escapeHtml(insc.associado_id?.nome || 'Associado')}</p>
+                                            <p class="text-sm text-gray-500">${escapeHtml(insc.associado_id?.email || 'Email não disponível')}</p>
+                                            <p class="text-xs text-gray-400">Nº Sócio: ${insc.associado_id?.numero_socio || '-'}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs text-gray-400">Inscrito em: ${new Date(insc.data_inscricao).toLocaleDateString('pt-PT')}</p>
+                                            <span class="px-2 py-1 text-xs rounded-full ${insc.status === 'confirmado' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                                                ${insc.status}
+                                            </span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>`
+                        }
+                        <div class="mt-4 pt-4 border-t">
+                            <button onclick="exportarInscritos('${eventoId}', '${escapeHtml(eventoTitulo)}')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">
+                                <i class="fas fa-download mr-2"></i>Exportar CSV
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            } catch (error) {
+                alert('Erro ao carregar inscrições');
+            }
+        };
+
+        // ========== EXPORTAR INSCRITOS ==========
+        window.exportarInscritos = async function(eventoId, eventoTitulo) {
+            const response = await fetch(`https://ifpn-public.onrender.com/api/eventos/admin/${eventoId}/inscritos`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+
+            let csv = 'Nome;Email;Nº Sócio;Data Inscrição;Status\n';
+            data.inscritos.forEach(insc => {
+                csv += `${insc.associado_id?.nome || ''};${insc.associado_id?.email || ''};${insc.associado_id?.numero_socio || ''};${new Date(insc.data_inscricao).toLocaleDateString('pt-PT')};${insc.status}\n`;
+            });
+
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `inscritos_${eventoTitulo.replace(/ /g, '_')}.csv`;
+            link.click();
+        };
+
+    } catch (err) {
+        console.error(err);
+        content.innerHTML = `<div class="text-red-600">Erro: ${err.message}</div>`;
+    }
+}
+
+async function loadProjetos(content) {
+    try {
+        // Buscar projetos
+        const response = await fetch('https://ifpn-public.onrender.com/api/projetos/admin/todos', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) throw new Error('Erro ao carregar projetos');
+        
+        const projetos = await response.json();
+        
+        content.innerHTML = `
+            <div class="bg-white rounded-xl shadow">
+                <div class="p-6 border-b flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Gestão de Projetos</h3>
+                    <button onclick="novoProjeto()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                        <i class="fas fa-plus mr-2"></i>Novo Projeto
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Título</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Eventos</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Visível</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                ${projetos.map(p => `
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3">
+                                            <div class="font-medium text-gray-900">${escapeHtml(p.titulo)}</div>
+                                            <div class="text-xs text-gray-500">${escapeHtml(p.descricao_curta?.substring(0, 50) || '')}...</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <button onclick="verEventosProjeto('${p._id}', '${escapeHtml(p.titulo)}')" 
+                                                    class="text-indigo-600 hover:text-indigo-800">
+                                                <i class="fas fa-calendar-alt mr-1"></i> ${p.totalEventos || 0} eventos
+                                            </button>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-gray-500">
+                                            ${p.createdAt ? new Date(p.createdAt).toLocaleDateString('pt-PT') : '-'}
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <button onclick="toggleVisibilidadeProjeto('${p._id}', ${!p.visivel})"
+                                                    title="${p.visivel ? 'Visível ao público (clique para ocultar)' : 'Oculto (clique para tornar visível)'}"
+                                                    class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${p.visivel ? 'bg-green-500' : 'bg-gray-300'}">
+                                                <span class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${p.visivel ? 'translate-x-6' : 'translate-x-1'}"></span>
+                                            </button>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <button onclick="editarProjeto('${p._id}')" class="text-indigo-600 hover:text-indigo-900 mr-3" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button onclick="eliminarProjeto('${p._id}', '${escapeHtml(p.titulo)}')" class="text-red-600 hover:text-red-900" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // ========== FUNÇÃO: TOGGLE VISIBILIDADE ==========
+        window.toggleVisibilidadeProjeto = async function(id, novoEstado) {
+            try {
+                const response = await fetch(`https://ifpn-public.onrender.com/api/projetos/admin/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ visivel: novoEstado })
+                });
+                if (response.ok) {
+                    loadProjetos(content);
+                } else {
+                    const err = await response.json().catch(() => ({}));
+                    alert('Erro ao alterar visibilidade: ' + (err.error || response.statusText));
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Erro ao alterar visibilidade');
+            }
+        };
+
+        // ========== FUNÇÃO: NOVO PROJETO ==========
+        window.novoProjeto = function() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">Novo Projeto</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <form id="formNovoProjeto" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Título *</label>
+                            <input type="text" name="titulo" required class="w-full border rounded-lg px-4 py-2">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Descrição Curta</label>
+                            <input type="text" name="descricao_curta" maxlength="300" class="w-full border rounded-lg px-4 py-2">
+                            <p class="text-xs text-gray-500 mt-1">Máximo 300 caracteres</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Descrição Completa *</label>
+                            <textarea name="descricao_completa" rows="5" required class="w-full border rounded-lg px-4 py-2"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Imagem Principal (URL)</label>
+                            <input type="text" name="imagem_principal" class="w-full border rounded-lg px-4 py-2" placeholder="https://...">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Data Início</label>
+                                <input type="date" name="data_inicio" class="w-full border rounded-lg px-4 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Data Fim</label>
+                                <input type="date" name="data_fim" class="w-full border rounded-lg px-4 py-2">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-2">
+                            <input type="checkbox" id="novoProjetoVisivel" name="visivel" checked class="w-4 h-4 text-indigo-600 border-gray-300 rounded">
+                            <label for="novoProjetoVisivel" class="text-sm font-medium text-gray-700">
+                                Visível ao público
+                            </label>
+                            <span class="text-xs text-gray-500 ml-2">(aparece na página de Projetos)</span>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-4">
+                            <button type="button" onclick="this.closest('.fixed').remove()" class="px-4 py-2 border rounded-lg hover:bg-gray-50">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                                Criar Projeto
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            document.getElementById('formNovoProjeto').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                // Checkbox: se está marcado, FormData devolve "on"; se não, devolve undefined
+                data.visivel = e.target.querySelector('input[name="visivel"]').checked;
+                
+                try {
+                    const response = await fetch('https://ifpn-public.onrender.com/api/projetos/admin', {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (response.ok) {
+                        modal.remove();
+                        loadProjetos(content);
+                    } else {
+                        const err = await response.json();
+                        alert('Erro ao criar projeto: ' + (err.error || 'Erro desconhecido'));
+                    }
+                } catch (error) {
+                    alert('Erro ao criar projeto');
+                }
+            });
+        };
+        
+        window.editarProjeto = async function(id) {
+    if (!id) {
+        alert('ID do projeto não fornecido');
+        return;
+    }
+    try {
+        const response = await fetch(`https://ifpn-public.onrender.com/api/projetos/admin/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) {
+            if (response.status === 404) throw new Error('Projeto não encontrado');
+            if (response.status === 401) throw new Error('Sessão expirada. Faça login novamente.');
+            throw new Error(`Erro ${response.status}: ${response.statusText}`);
+        }
+
+        const p = await response.json();   
+
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">Editar Projeto</h3>
+                    <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form id="formEditarProjeto" class="space-y-4">
+                    <input type="hidden" name="_id" value="${p._id}">
+                    <div><label>Título *</label><input type="text" name="titulo" value="${escapeHtml(p.titulo)}" class="w-full border rounded-lg px-4 py-2"></div>
+                    <div><label>Descrição Curta</label><input type="text" name="descricao_curta" value="${escapeHtml(p.descricao_curta || '')}" class="w-full border rounded-lg px-4 py-2"></div>
+                    <div><label>Descrição Completa *</label><textarea name="descricao_completa" rows="5" class="w-full border rounded-lg px-4 py-2">${escapeHtml(p.descricao_completa || '')}</textarea></div>
+                    <div><label>Imagem Principal (URL)</label><input type="text" name="imagem_principal" value="${p.imagem_principal || ''}" class="w-full border rounded-lg px-4 py-2" placeholder="https://..."></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label>Data Início</label><input type="date" name="data_inicio" value="${p.data_inicio ? p.data_inicio.split('T')[0] : ''}" class="w-full border rounded-lg px-4 py-2"></div>
+                        <div><label>Data Fim</label><input type="date" name="data_fim" value="${p.data_fim ? p.data_fim.split('T')[0] : ''}" class="w-full border rounded-lg px-4 py-2"></div>
+                    </div>
+
+                    <div class="flex items-center gap-2 pt-2">
+                        <input type="checkbox" id="editProjetoVisivel" name="visivel" ${p.visivel ? 'checked' : ''} class="w-4 h-4 text-indigo-600 border-gray-300 rounded">
+                        <label for="editProjetoVisivel" class="text-sm font-medium text-gray-700">
+                            Visível ao público
+                        </label>
+                        <span class="text-xs text-gray-500 ml-2">(aparece na página de Projetos)</span>
+                    </div>
+
+                    <div class="mt-6 border-t pt-4">
+                        <h4 class="font-semibold text-gray-700 mb-3">📚 Livros / Produtos</h4>
+                        <div id="produtosContainer">
+                            ${p.produtos && p.produtos.length > 0 ? p.produtos.map((prod, idx) => `
+                                <div class="border rounded-lg p-3 mb-3 flex justify-between items-center">
+                                    <div>
+                                        <p class="font-medium">${escapeHtml(prod.titulo)}</p>
+                                        <p class="text-sm text-gray-500">${prod.preco}€</p>
+                                        ${prod.link_compra ? `<a href="${escapeHtml(prod.link_compra)}" target="_blank" class="text-xs text-indigo-600">Link</a>` : ''}
+                                    </div>
+                                    <div>
+                                        <button onclick="editarProduto('${p._id}', ${idx})" class="text-indigo-600 mr-2"><i class="fas fa-edit"></i></button>
+                                        <button onclick="eliminarProduto('${p._id}', ${idx})" class="text-red-600"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            `).join('') : '<p class="text-gray-500">Nenhum produto adicionado.</p>'}
+                        </div>
+                        <button onclick="adicionarProduto('${p._id}')" class="mt-2 bg-green-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-plus"></i> Adicionar Produto
+                        </button>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-4">
+                        <button type="button" onclick="this.closest('.fixed').remove()" class="px-4 py-2 border rounded-lg">Cancelar</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Submeter edição do projeto
+        document.getElementById('formEditarProjeto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                titulo: formData.get('titulo'),
+                descricao_curta: formData.get('descricao_curta'),
+                descricao_completa: formData.get('descricao_completa'),
+                imagem_principal: formData.get('imagem_principal'),
+                estado: formData.get('estado'),
+                visivel: e.target.querySelector('input[name="visivel"]').checked,
+                data_inicio: formData.get('data_inicio') || null,
+                data_fim: formData.get('data_fim') || null
+            };
+            try {
+                const updateResponse = await fetch(`https://ifpn-public.onrender.com/api/projetos/admin/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (updateResponse.ok) {
+                    modal.remove();
+                    loadProjetos(content);
+                } else {
+                    const err = await updateResponse.json();
+                    alert('Erro ao atualizar: ' + (err.error || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                alert('Erro ao atualizar projeto');
+            }
+        });
+
+    } catch (error) {
+        console.error('Erro ao carregar projeto:', error);
+        alert('Erro ao carregar dados do projeto: ' + error.message);
+    }
+};
+
+        // ========== CRUD DE PRODUTOS (para o admin) ==========
+window.adicionarProduto = async function(projetoId) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4">Novo Produto</h3>
+            <form id="formNovoProduto" class="space-y-3">
+                <div><label class="block text-sm font-medium">Título *</label><input type="text" name="titulo" required class="w-full border rounded px-3 py-2"></div>
+                <div><label class="block text-sm font-medium">Descrição</label><textarea name="descricao" rows="2" class="w-full border rounded px-3 py-2"></textarea></div>
+                <div><label class="block text-sm font-medium">URL da capa</label><input type="text" name="capa" placeholder="https://..." class="w-full border rounded px-3 py-2"></div>
+                <div><label class="block text-sm font-medium">Preço (€) *</label><input type="number" step="0.01" name="preco" required class="w-full border rounded px-3 py-2"></div>
+                <div><label class="block text-sm font-medium">Link de compra *</label><input type="url" name="link_compra" required class="w-full border rounded px-3 py-2"></div>
+                <div class="flex justify-end gap-3 mt-4">
+                    <button type="button" onclick="this.closest('.fixed').remove()" class="px-4 py-2 border rounded">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded">Guardar</button>
+                </div>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('formNovoProduto').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+        data.preco = parseFloat(data.preco);
+
+        try {
+            const response = await fetch(`https://ifpn-public.onrender.com/api/projetos/admin/${projetoId}/produtos`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (response.ok) {
+                modal.remove();
+                editarProjeto(projetoId);  // recarrega o modal de edição
+            } else {
+                const err = await response.json();
+                alert('Erro: ' + (err.error || 'Erro desconhecido'));
+            }
+        } catch (error) {
+            alert('Erro ao adicionar produto');
+        }
+    });
+};
+
+window.editarProduto = async function(projetoId, produtoIndex) {
+    try {
+        const response = await fetch(`https://ifpn-public.onrender.com/api/projetos/admin/${projetoId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error('Erro ao carregar projeto');
+        const projeto = await response.json();
+        const produto = projeto.produtos[produtoIndex];
+        if (!produto) throw new Error('Produto não encontrado');
+
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-lg p-6 w-full max-w-md">
+                <h3 class="text-xl font-bold mb-4">Editar Produto</h3>
+                <form id="formEditarProduto" class="space-y-3">
+                    <div><label class="block text-sm font-medium">Título *</label><input type="text" name="titulo" value="${escapeHtml(produto.titulo)}" required class="w-full border rounded px-3 py-2"></div>
+                    <div><label class="block text-sm font-medium">Descrição</label><textarea name="descricao" rows="2" class="w-full border rounded px-3 py-2">${escapeHtml(produto.descricao || '')}</textarea></div>
+                    <div><label class="block text-sm font-medium">URL da capa</label><input type="text" name="capa" value="${produto.capa || ''}" class="w-full border rounded px-3 py-2"></div>
+                    <div><label class="block text-sm font-medium">Preço (€) *</label><input type="number" step="0.01" name="preco" value="${produto.preco}" required class="w-full border rounded px-3 py-2"></div>
+                    <div><label class="block text-sm font-medium">Link de compra *</label><input type="url" name="link_compra" value="${escapeHtml(produto.link_compra)}" required class="w-full border rounded px-3 py-2"></div>
+                    <div class="flex justify-end gap-3 mt-4">
+                        <button type="button" onclick="this.closest('.fixed').remove()" class="px-4 py-2 border rounded">Cancelar</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        document.getElementById('formEditarProduto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            data.preco = parseFloat(data.preco);
+
+            const response = await fetch(`https://ifpn-public.onrender.com/api/projetos/admin/${projetoId}/produtos/${produtoIndex}`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (response.ok) {
+                modal.remove();
+                editarProjeto(projetoId);
+            } else {
+                alert('Erro ao atualizar produto');
+            }
+        });
+    } catch (error) {
+        alert('Erro ao carregar produto para edição');
+    }
+};
+
+window.eliminarProduto = async function(projetoId, produtoIndex) {
+    if (!confirm('Eliminar este produto permanentemente?')) return;
+    try {
+        const response = await fetch(`https://ifpn-public.onrender.com/api/projetos/admin/${projetoId}/produtos/${produtoIndex}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+            editarProjeto(projetoId);
+        } else {
+            alert('Erro ao eliminar produto');
+        }
+    } catch (error) {
+        alert('Erro ao eliminar produto');
+    }
+};
+        
+        // ========== FUNÇÃO: ELIMINAR PROJETO ==========
+        window.eliminarProjeto = async function(id, titulo) {
+            if (!confirm(`Tem certeza que deseja eliminar o projeto "${titulo}"?\n\nTodos os eventos associados também serão eliminados!`)) return;
+            
+            try {
+                const response = await fetch(`https://ifpn-public.onrender.com/api/projetos/admin/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    alert('Projeto eliminado com sucesso!');
+                    loadProjetos(content);
+                } else {
+                    alert('Erro ao eliminar projeto');
+                }
+            } catch (error) {
+                alert('Erro ao eliminar projeto');
+            }
+        };
+        
+        // ========== FUNÇÃO: VER EVENTOS DO PROJETO ==========
+        window.verEventosProjeto = async function(projetoId, projetoNome) {
+            try {
+                const response = await fetch(`https://ifpn-public.onrender.com/api/projetos/${projetoId}/eventos`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const eventos = await response.json();
+                
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold">Eventos - ${escapeHtml(projetoNome)}</h3>
+                            <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <button onclick="novoEventoParaProjeto('${projetoId}', '${escapeHtml(projetoNome)}')" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+                                <i class="fas fa-plus mr-2"></i>Adicionar Evento
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            ${eventos.length === 0 ? '<p class="text-gray-500 text-center py-8">Nenhum evento associado a este projeto</p>' : 
+                                eventos.map(e => `
+                                    <div class="border rounded-lg p-4 flex justify-between items-center">
+                                        <div>
+                                            <h4 class="font-semibold">${escapeHtml(e.titulo)}</h4>
+                                            <p class="text-sm text-gray-500">${new Date(e.data_inicio).toLocaleDateString('pt-PT')} · ${e.local?.nome || 'Local a definir'}</p>
+                                        </div>
+                                        <div>
+                                            <button onclick="editarEvento('${e._id}', '${projetoId}', '${escapeHtml(projetoNome)}')" class="text-indigo-600 mr-2">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button onclick="eliminarEventoProjeto('${e._id}', '${projetoId}', '${escapeHtml(projetoNome)}')" class="text-red-600">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `).join('')
+                            }
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            } catch (error) {
+                alert('Erro ao carregar eventos');
+            }
+        };
+        
+        // ========== FUNÇÃO: NOVO EVENTO PARA PROJETO ==========
+        window.novoEventoParaProjeto = function(projetoId, projetoNome) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <h3 class="text-xl font-bold mb-4">Novo Evento - ${escapeHtml(projetoNome)}</h3>
+                    <form id="formNovoEvento" class="space-y-4">
+                        <input type="hidden" name="projeto_id" value="${projetoId}">
+                        <div><label>Título *</label><input type="text" name="titulo" required class="w-full border rounded px-3 py-2"></div>
+                        <div><label>Descrição *</label><textarea name="descricao" rows="3" required class="w-full border rounded px-3 py-2"></textarea></div>
+                        <div><label>Tipo</label><select name="tipo" class="w-full border rounded px-3 py-2"><option value="workshop">Workshop</option><option value="conferencia">Conferência</option><option value="reuniao">Reunião</option><option value="cultural">Cultural</option><option value="outro">Outro</option></select></div>
+                        <div class="grid grid-cols-2 gap-3"><div><label>Data e Hora de Início *</label><input type="datetime-local" name="data_inicio" required class="w-full border rounded px-3 py-2"></div><div><label>Data e Hora de Fim</label><input type="datetime-local" name="data_fim" class="w-full border rounded px-3 py-2"></div></div>
+                        <div><label>Local</label><input type="text" name="local" class="w-full border rounded px-3 py-2" placeholder="Ex: Auditório, Online"></div>
+                        <div><label>Capacidade</label><input type="number" name="capacidade" class="w-full border rounded px-3 py-2"></div>
+                        <div><label>Imagem (URL)</label><input type="text" name="imagem" class="w-full border rounded px-3 py-2"></div>
+                        <div class="flex justify-end gap-3"><button type="button" onclick="this.closest('.fixed').remove()" class="px-4 py-2 border rounded">Cancelar</button><button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded">Criar</button></div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            document.getElementById('formNovoEvento').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                if(data.local) data.local = { nome: data.local };
+                
+                try {
+                    const response = await fetch(`https://ifpn-public.onrender.com/api/projetos/admin/${projetoId}/eventos`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (response.ok) {
+                        modal.remove();
+                        verEventosProjeto(projetoId, projetoNome);
+                    } else {
+                        alert('Erro ao criar evento');
+                    }
+                } catch (error) {
+                    alert('Erro ao criar evento');
+                }
+            });
+        };
+        
+        // ========== FUNÇÃO: EDITAR EVENTO ==========
+        window.editarEvento = async function(eventoId, projetoId, projetoNome) {
+            try {
+                const response = await fetch(`https://ifpn-public.onrender.com/api/eventos/admin/${eventoId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const e = await response.json();
+                
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <h3 class="text-xl font-bold mb-4">Editar Evento</h3>
+                        <form id="formEditarEvento" class="space-y-4">
+                            <div><label>Título</label><input type="text" name="titulo" value="${escapeHtml(e.titulo)}" class="w-full border rounded px-3 py-2"></div>
+                            <div><label>Descrição</label><textarea name="descricao" rows="3" class="w-full border rounded px-3 py-2">${escapeHtml(e.descricao || '')}</textarea></div>
+                            <div><label>Tipo</label><select name="tipo" class="w-full border rounded px-3 py-2"><option value="workshop" ${e.tipo==='workshop'?'selected':''}>Workshop</option><option value="conferencia" ${e.tipo==='conferencia'?'selected':''}>Conferência</option><option value="reuniao" ${e.tipo==='reuniao'?'selected':''}>Reunião</option><option value="cultural" ${e.tipo==='cultural'?'selected':''}>Cultural</option><option value="outro" ${e.tipo==='outro'?'selected':''}>Outro</option></select></div>
+                            <div class="grid grid-cols-2 gap-3"><div><label>Data e Hora de Início</label><input type="datetime-local" name="data_inicio" value="${e.data_inicio ? new Date(e.data_inicio).toISOString().slice(0,16) : ''}" class="w-full border rounded px-3 py-2"></div><div><label>Data e Hora de Fim</label><input type="datetime-local" name="data_fim" value="${e.data_fim ? new Date(e.data_fim).toISOString().slice(0,16) : ''}" class="w-full border rounded px-3 py-2"></div></div>
+                            <div><label>Local</label><input type="text" name="local" value="${e.local?.nome || ''}" class="w-full border rounded px-3 py-2"></div>
+                            <div><label>Capacidade</label><input type="number" name="capacidade" value="${e.capacidade || 0}" class="w-full border rounded px-3 py-2"></div>
+                            <div><label>Imagem (URL)</label><input type="text" name="imagem" value="${e.imagem || ''}" class="w-full border rounded px-3 py-2"></div>
+                            <div class="flex justify-end gap-3"><button type="button" onclick="this.closest('.fixed').remove()" class="px-4 py-2 border rounded">Cancelar</button><button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded">Guardar</button></div>
+                        </form>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                document.getElementById('formEditarEvento').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const data = Object.fromEntries(formData.entries());
+                    if(data.local) data.local = { nome: data.local };
+                    
+                    await fetch(`https://ifpn-public.onrender.com/api/projetos/admin/eventos/${eventoId}`, {
+                        method: 'PUT',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    modal.remove();
+                    verEventosProjeto(projetoId, projetoNome);
+                });
+            } catch (error) {
+                alert('Erro ao carregar evento');
+            }
+        };
+        
+        // ========== FUNÇÃO: ELIMINAR EVENTO ==========
+        window.eliminarEventoProjeto = async function(eventoId, projetoId, projetoNome) {
+            if (!confirm('Eliminar este evento?')) return;
+            
+            try {
+                await fetch(`https://ifpn-public.onrender.com/api/projetos/admin/eventos/${eventoId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                verEventosProjeto(projetoId, projetoNome);
+            } catch (error) {
+                alert('Erro ao eliminar evento');
+            }
+        };
+        
+    } catch (error) {
+        console.error('Erro:', error);
+        content.innerHTML = `<div class="text-red-600">Erro: ${error.message}</div>`;
+    }
+}
+
+// ========== FUNÇÕES AUXILIARES ==========
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+
+async function loadNewsletter(content) {
+    try {
+        const response = await fetch('https://ifpn-public.onrender.com/api/newsletter/admin/subscribers', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        const data = await response.json();
+        
+        content.innerHTML = `
+            <div class="space-y-6">
+                <!-- Cards de estatísticas -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="bg-white rounded-xl shadow p-4 text-center">
+                        <p class="text-2xl font-bold text-indigo-600">${data.estatisticas.total || 0}</p>
+                        <p class="text-sm text-gray-500">Total Subscritores</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4 text-center">
+                        <p class="text-2xl font-bold text-green-600">${data.estatisticas.por_categoria?.projetos || 0}</p>
+                        <p class="text-sm text-gray-500">📁 Projetos</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4 text-center">
+                        <p class="text-2xl font-bold text-blue-600">${data.estatisticas.por_categoria?.eventos || 0}</p>
+                        <p class="text-sm text-gray-500">📅 Eventos</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4 text-center">
+                        <p class="text-2xl font-bold text-purple-600">${data.estatisticas.por_categoria?.noticias || 0}</p>
+                        <p class="text-sm text-gray-500">📰 Notícias</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4 text-center">
+                        <p class="text-2xl font-bold text-yellow-600">${data.estatisticas.por_categoria?.todos || 0}</p>
+                        <p class="text-sm text-gray-500">⭐ Todas</p>
+                    </div>
+                </div>
+                
+                <!-- Filtros e ações -->
+                <div class="bg-white rounded-xl shadow p-4">
+                    <div class="flex flex-wrap gap-4 justify-between items-center">
+                        <div class="flex gap-2">
+                            <select id="filtroCategoria" class="border rounded-lg px-3 py-2">
+                                <option value="todos">Todas categorias</option>
+                                <option value="projetos">📁 Projetos</option>
+                                <option value="eventos">📅 Eventos</option>
+                                <option value="noticias">📰 Notícias</option>
+                            </select>
+                            <button onclick="copiarEmails()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                                <i class="fas fa-copy mr-2"></i>Copiar Emails
+                            </button>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Clique em "Copiar Emails" para copiar todos os emails da lista
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lista de emails -->
+                <div class="bg-white rounded-xl shadow">
+                    <div class="p-4 border-b bg-gray-50">
+                        <h3 class="font-semibold">Lista de Subscritores</h3>
+                    </div>
+                    <div id="subscribersList" class="divide-y">
+                        ${data.subscribers.map(s => `
+                            <div class="p-4 flex justify-between items-center hover:bg-gray-50">
+                                <div>
+                                    <p class="font-medium">${s.email}</p>
+                                    <p class="text-sm text-gray-500">${s.nome || 'Sem nome'}</p>
+                                    <div class="flex gap-1 mt-1">
+                                        ${s.categorias.map(c => `
+                                            <span class="px-2 py-0.5 text-xs rounded-full ${getCategoriaClass(c)}">${c}</span>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                                <div class="text-right text-sm text-gray-400">
+                                    ${new Date(s.data_subscricao).toLocaleDateString('pt-PT')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Função para copiar emails
+        window.copiarEmails = function() {
+            const categoria = document.getElementById('filtroCategoria').value;
+            const emails = data.subscribers
+                .filter(s => {
+                    if (categoria === 'todos') return true;
+                    return s.categorias.includes(categoria) || s.categorias.includes('todos');
+                })
+                .map(s => s.email)
+                .join('; ');
+            
+            navigator.clipboard.writeText(emails);
+            alert(`📋 ${emails.split(';').length} emails copiados!`);
+        };
+        
+        window.exportarCSV = function() {
+            const categoria = document.getElementById('filtroCategoria').value;
+            window.location.href = `https://ifpn-public.onrender.com/api/newsletter/admin/exportar?categoria=${categoria}&token=${token}`;
+        };
+        
+        // Filtrar lista
+        document.getElementById('filtroCategoria').addEventListener('change', function() {
+            const categoria = this.value;
+            const listaDiv = document.getElementById('subscribersList');
+            
+            const filtrados = data.subscribers.filter(s => {
+                if (categoria === 'todos') return true;
+                return s.categorias.includes(categoria) || s.categorias.includes('todos');
+            });
+            
+            if (filtrados.length === 0) {
+                listaDiv.innerHTML = '<div class="p-8 text-center text-gray-500">Nenhum subscritor encontrado</div>';
+                return;
+            }
+            
+            listaDiv.innerHTML = filtrados.map(s => `
+                <div class="p-4 flex justify-between items-center hover:bg-gray-50">
+                    <div>
+                        <p class="font-medium">${s.email}</p>
+                        <p class="text-sm text-gray-500">${s.nome || 'Sem nome'}</p>
+                        <div class="flex gap-1 mt-1">
+                            ${s.categorias.map(c => `<span class="px-2 py-0.5 text-xs rounded-full ${getCategoriaClass(c)}">${c}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="text-right text-sm text-gray-400">
+                        ${new Date(s.data_subscricao).toLocaleDateString('pt-PT')}
+                    </div>
+                </div>
+            `).join('');
+        });
+        
+        function getCategoriaClass(cat) {
+            const classes = {
+                'projetos': 'bg-green-100 text-green-800',
+                'eventos': 'bg-blue-100 text-blue-800',
+                'noticias': 'bg-purple-100 text-purple-800',
+                'todos': 'bg-yellow-100 text-yellow-800'
+            };
+            return classes[cat] || 'bg-gray-100';
+        }
+        
+    } catch (error) {
+        console.error(error);
+        content.innerHTML = `<div class="text-red-600">Erro: ${error.message}</div>`;
+    }
+}
+
+async function loadConfiguracoes(content) {
+    try {
+        const response = await fetch('https://ifpn-public.onrender.com/api/configuracoes/admin', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) throw new Error('Erro ao carregar configurações');
+        
+        const config = await response.json();
+        
+        content.innerHTML = `
+            <div class="space-y-6">
+                <!-- Transmissão ao vivo -->
+                <div class="bg-white rounded-xl shadow">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold">📡 Transmissão ao vivo</h3>
+                    </div>
+                    <div class="p-6">
+                        <form id="formTransmissao" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Título</label>
+                                <input type="text" id="live_titulo" value="${config.transmissao_ao_vivo?.titulo || ''}" 
+                                       class="w-full border rounded-lg px-4 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Link do vídeo (YouTube, Vimeo, etc.)</label>
+                                <input type="text" id="live_link" value="${config.transmissao_ao_vivo?.link || ''}" 
+                                       class="w-full border rounded-lg px-4 py-2">
+                                <p class="text-xs text-gray-500 mt-1">Ex: https://www.youtube.com/embed/live_stream?channel=UC...</p>
+                            </div>
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="live_ativo" ${config.transmissao_ao_vivo?.ativo ? 'checked' : ''} class="mr-2">
+                                    <span class="text-sm">Ativar transmissão ao vivo</span>
+                                </label>
+                            </div>
+                            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">Guardar Alterações</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Vídeos do Arquivo -->
+                <div class="bg-white rounded-xl shadow">
+                    <div class="p-6 border-b flex justify-between items-center">
+                        <h3 class="text-lg font-semibold">🎬 Vídeos do Arquivo</h3>
+                        <div class="flex items-center gap-3">
+                            <span id="videosTotalCount" class="text-sm text-gray-500"></span>
+                            <button onclick="adicionarVideo()" class="bg-green-600 text-white px-3 py-1 rounded-lg text-sm">
+                                <i class="fas fa-plus mr-1"></i>Adicionar Vídeo
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div id="videosList" class="space-y-3"></div>
+                        <div id="videosPagination" class="flex justify-center items-center gap-2 flex-wrap mt-4"></div>
+                    </div>
+                </div>
+        `;
+        
+        // ========== EVENTOS DOS FORMS ==========
+        
+        // Transmissão ao vivo
+        document.getElementById('formTransmissao').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                transmissao_ao_vivo: {
+                    titulo: document.getElementById('live_titulo').value,
+                    link: document.getElementById('live_link').value,
+                    ativo: document.getElementById('live_ativo').checked
+                }
+            };
+            
+            const response = await fetch('https://ifpn-public.onrender.com/api/configuracoes/admin', {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            if (response.ok) alert('Configurações guardadas!');
+            else alert('Erro ao guardar');
+        });
+        
+        
+        // ========== Paginação dos vídeos no admin ==========
+        const videosPorPagina = 5;
+        let videosPaginaAtual = 1;
+
+        window.renderVideosAdmin = function() {
+            const videosList = document.getElementById('videosList');
+            const pag = document.getElementById('videosPagination');
+            const counter = document.getElementById('videosTotalCount');
+            const original = config.videos_arquivo || [];
+
+            // Ordenar do mais recente para o mais antigo (preservando índice original para as ações)
+            const lista = original
+                .map((v, idx) => ({ v, idx }))
+                .sort((a, b) => (b.v.ordem || 0) - (a.v.ordem || 0));
+
+            counter.textContent = lista.length > 0
+                ? `${lista.length} vídeo${lista.length !== 1 ? 's' : ''}`
+                : '';
+
+            if (!lista.length) {
+                videosList.innerHTML = '<p class="text-gray-500 text-center py-4">Nenhum vídeo no arquivo</p>';
+                pag.innerHTML = '';
+                return;
+            }
+
+            const totalPaginas = Math.ceil(lista.length / videosPorPagina);
+            if (videosPaginaAtual > totalPaginas) videosPaginaAtual = totalPaginas;
+            if (videosPaginaAtual < 1) videosPaginaAtual = 1;
+            const inicio = (videosPaginaAtual - 1) * videosPorPagina;
+            const pageItems = lista.slice(inicio, inicio + videosPorPagina);
+
+            videosList.innerHTML = pageItems.map(({ v, idx }, i) => {
+                const idxGlobal = idx; // índice real no array do backend
+                const posicao = inicio + i + 1; // numeração visual (1 = mais recente)
+                return `
+                    <div class="border rounded-lg p-4" data-index="${idxGlobal}">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs text-gray-500 font-semibold">#${posicao} <span class="text-gray-400">(mais recentes primeiro)</span></span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <input type="text" placeholder="Título" value="${(v.titulo || '').replace(/"/g, '&quot;')}"
+                                   class="video-titulo border rounded px-3 py-2">
+                            <input type="text" placeholder="Link do vídeo" value="${(v.link || '').replace(/"/g, '&quot;')}"
+                                   class="video-link border rounded px-3 py-2">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <input type="text" placeholder="URL da miniatura (opcional)" value="${(v.thumbnail || '').replace(/"/g, '&quot;')}"
+                                   class="video-thumbnail border rounded px-3 py-2">
+                            <input type="text" placeholder="Descrição" value="${(v.descricao || '').replace(/"/g, '&quot;')}"
+                                   class="video-descricao border rounded px-3 py-2">
+                        </div>
+                        <div class="flex justify-end gap-2">
+                            <button onclick="atualizarVideo(${idxGlobal})" class="text-indigo-600 hover:text-indigo-800">
+                                <i class="fas fa-save mr-1"></i>Guardar
+                            </button>
+                            <button onclick="removerVideo(${idxGlobal})" class="text-red-600 hover:text-red-800">
+                                <i class="fas fa-trash mr-1"></i>Remover
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Paginação
+            if (totalPaginas <= 1) { pag.innerHTML = ''; return; }
+            const btnClass = 'px-3 py-1 border-2 border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed';
+            let html = `<button class="${btnClass}" ${videosPaginaAtual === 1 ? 'disabled' : ''} onclick="mudarPaginaVideosAdmin(${videosPaginaAtual - 1})"><i class="fas fa-chevron-left"></i></button>`;
+            for (let i = 1; i <= totalPaginas; i++) {
+                const ativa = i === videosPaginaAtual ? 'bg-indigo-600 text-white' : '';
+                html += `<button class="${btnClass} ${ativa}" onclick="mudarPaginaVideosAdmin(${i})">${i}</button>`;
+            }
+            html += `<button class="${btnClass}" ${videosPaginaAtual === totalPaginas ? 'disabled' : ''} onclick="mudarPaginaVideosAdmin(${videosPaginaAtual + 1})"><i class="fas fa-chevron-right"></i></button>`;
+            pag.innerHTML = html;
+        };
+
+        window.mudarPaginaVideosAdmin = function(p) {
+            videosPaginaAtual = p;
+            renderVideosAdmin();
+        };
+
+        // Renderização inicial
+        renderVideosAdmin();
+
+        // Funções auxiliares
+        window.adicionarVideo = function() {
+            const videosList = document.getElementById('videosList');
+
+            const newVideoHtml = `
+                <div class="border rounded-lg p-4" data-new="true">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs text-green-600 font-semibold"><i class="fas fa-plus-circle mr-1"></i>Novo vídeo</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <input type="text" placeholder="Título" class="video-titulo border rounded px-3 py-2">
+                        <input type="text" placeholder="Link do vídeo" class="video-link border rounded px-3 py-2">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <input type="text" placeholder="URL da miniatura" class="video-thumbnail border rounded px-3 py-2">
+                        <input type="text" placeholder="Descrição" class="video-descricao border rounded px-3 py-2">
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button onclick="guardarNovoVideo(this)" class="bg-indigo-600 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-save mr-1"></i>Guardar
+                        </button>
+                        <button onclick="this.closest('.border').remove()" class="text-red-600 text-sm">Cancelar</button>
+                    </div>
+                </div>
+            `;
+
+            // Limpar mensagem vazio se existir
+            const empty = videosList.querySelector('.text-gray-500');
+            if (empty) empty.remove();
+
+            videosList.insertAdjacentHTML('afterbegin', newVideoHtml);
+        };
+        
+        window.guardarNovoVideo = async function(btn) {
+            const div = btn.closest('.border');
+            const titulo = div.querySelector('.video-titulo').value;
+            const link = div.querySelector('.video-link').value;
+            const thumbnail = div.querySelector('.video-thumbnail').value;
+            const descricao = div.querySelector('.video-descricao').value;
+            
+            if (!titulo || !link) {
+                alert('Título e link são obrigatórios');
+                return;
+            }
+            
+            const response = await fetch('https://ifpn-public.onrender.com/api/configuracoes/admin/videos', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ titulo, link, thumbnail, descricao })
+            });
+            
+            if (response.ok) {
+                alert('Vídeo adicionado!');
+                loadConfiguracoes(content);
+            } else {
+                alert('Erro ao adicionar vídeo');
+            }
+        };
+        
+        window.atualizarVideo = async function(index) {
+            const div = document.querySelector(`.border[data-index="${index}"]`);
+            const titulo = div.querySelector('.video-titulo').value;
+            const link = div.querySelector('.video-link').value;
+            const thumbnail = div.querySelector('.video-thumbnail')?.value || '';
+            const descricao = div.querySelector('.video-descricao')?.value || '';
+            
+            const response = await fetch(`https://ifpn-public.onrender.com/api/configuracoes/admin/videos/${index}`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ titulo, link, thumbnail, descricao })
+            });
+            
+            if (response.ok) alert('Vídeo atualizado!');
+            else alert('Erro ao atualizar');
+        };
+        
+        window.removerVideo = async function(index) {
+            if (!confirm('Remover este vídeo?')) return;
+            
+            const response = await fetch(`https://ifpn-public.onrender.com/api/configuracoes/admin/videos/${index}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (response.ok) {
+                alert('Vídeo removido!');
+                loadConfiguracoes(content);
+            } else {
+                alert('Erro ao remover vídeo');
+            }
+        };
+        
+    } catch (error) {
+        console.error('Erro:', error);
+        content.innerHTML = `<div class="text-red-600">Erro: ${error.message}</div>`;
+    }
+}
+
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('associado');
+            window.location.href = '/frontend/index.html';
+        }
+    </script>
+</body>
+</html>

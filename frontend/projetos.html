@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projetos - IFPN</title>
+    <link rel="icon" type="image/png" href="/assets/images/imgPLF.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #423ea3 0%, #ba1239 100%);
+        }
+        .btn-primary {
+            background-color: #4946df;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #ba1239;
+        }
+        .text-primary { color: #4946df; }
+        .text-secondary { color: #ba1239; }
+        .bg-primary-light { background-color: #f0f0fc; }
+        .border-secondary { border-color: #ba1239; }
+        .hover\:bg-secondary:hover { background-color: #ba1239; }
+        .hover\:text-secondary:hover { color: #ba1239; }
+
+        .event-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .event-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+
+        .pag-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #4946df;
+            background-color: #ffffff;
+            color: #4946df;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        .pag-btn:hover:not(:disabled) {
+            background-color: #4946df;
+            color: #ffffff;
+        }
+        .pag-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .pag-btn.active { background-color: #4946df; color: #ffffff; }
+
+        .tab-btn {
+            padding: 0.625rem 1.5rem;
+            border: 2px solid #4946df;
+            background-color: #ffffff;
+            color: #4946df;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .tab-btn.active, .tab-btn:hover {
+            background-color: #4946df;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body class="bg-white">
+
+    <!-- HEADER (carregado automaticamente) -->
+    <div id="header-placeholder"></div>
+
+    <!-- Hero Section -->
+    <section class="max-w-7xl mx-auto text-white bg-[url('/frontend/assets/images/hero.png')] bg-cover bg-center mt-6 mb-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center" style="height: 150px;">
+                <div class="hidden md:block"></div>
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-bold leading-tight text-[#4946df] mb-6 text-right">
+                        Projetos
+                    </h1>
+                    <p class="text-xl mb-8 text-black text-right">
+                        Conheça os nossos projetos e os eventos a eles associados.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Barra de Pesquisa -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3">
+            <div class="px-4 py-6 flex justify-center">
+                <div class="relative w-full max-w-2xl">
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-[#4946df]"></i>
+                    <input type="text" id="searchProjetos" placeholder="Pesquisar projetos por título..."
+                           class="w-full pl-12 pr-12 py-3 border-2 border-[#4946df] focus:outline-none focus:ring-2 focus:ring-[#ba1239]">
+                    <button id="clearSearch" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#4946df] hover:text-[#ba1239] hidden">
+                        <i class="fas fa-times-circle text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tabs: Em curso/Futuros / Passados / Todos -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3">
+            <div class="px-4 py-6 flex justify-center flex-wrap gap-3">
+                <button class="tab-btn active" data-estado="ativos">
+                    <i class="fas fa-play-circle mr-2"></i>Em curso e Futuros
+                    <span class="ml-1 text-xs" data-count="ativos"></span>
+                </button>
+                <button class="tab-btn" data-estado="passados">
+                    <i class="fas fa-history mr-2"></i>Passados
+                    <span class="ml-1 text-xs" data-count="passados"></span>
+                </button>
+                <button class="tab-btn" data-estado="todos">
+                    <i class="fas fa-list mr-2"></i>Todos
+                    <span class="ml-1 text-xs" data-count="todos"></span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3"></div>
+
+    <!-- Lista de Projetos -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex text-left mb-3 w-full px-4 py-2 border-b-4 border-[#4946df]">
+                <h1 id="projetosTitulo" class="text-5xl font-bold text-[#4946df] pt-5">Em curso e Futuros</h1>
+            </div>
+
+            <div id="projetosContainer" class="space-y-6 px-4 py-6">
+                <div class="text-center py-12 text-[#4946df]">
+                    <i class="fas fa-spinner fa-spin text-3xl"></i>
+                    <p class="mt-2">Carregando projetos...</p>
+                </div>
+            </div>
+
+            <!-- Paginação -->
+            <div id="paginationControls" class="flex justify-center items-center gap-2 flex-wrap py-6"></div>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3"></div>
+    <div class="max-w-7xl mx-auto overflow-hidden mt-10 mb-10" style="height: 100px;">
+        <img src="/frontend/assets/images/separador-01.png"
+             alt=""
+             class="w-full h-full object-cover object-center">
+    </div>
+
+    <!-- FOOTER -->
+    <div id="footer-placeholder"></div>
+
+    <!-- ========== MODAL DE PROJETO ========== -->
+    <div id="projetoModal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white max-w-3xl w-full max-h-[90vh] overflow-y-auto border-2 border-[#4946df]">
+            <div class="sticky top-0 bg-white border-b-4 border-[#4946df] p-4 flex justify-between items-center">
+                <h2 id="modalTitulo" class="text-2xl font-bold text-[#4946df]">-</h2>
+                <button onclick="fecharModalProjeto()" class="text-[#4946df] hover:text-[#ba1239]">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="modalDatas" class="text-sm text-[#4946df] mb-4 font-medium"></div>
+                <div id="modalImagem" class="mb-6 hidden"><img src="" class="w-full h-64 object-cover"></div>
+                <div id="modalDescricaoCurta" class="text-black italic mb-4 text-lg"></div>
+                <div id="modalDescricaoCompleta" class="text-black leading-relaxed"></div>
+                <div id="modalEventos" class="mt-6">
+                    <h4 class="font-semibold text-[#4946df] text-xl mb-3"><i class="fas fa-calendar-alt mr-2"></i>Eventos deste projeto</h4>
+                    <div id="eventosList" class="space-y-2"></div>
+                </div>
+                <div id="modalProdutos" class="mt-6"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/frontend/js/include.js"></script>
+    <script>
+        const API_URL = 'https://ifpn-public.onrender.com/api/projetos';
+        let projetosCompletos = [];
+        let projetosFiltrados = [];
+        let paginaAtual = 1;
+        const itensPorPagina = 6;
+        let filtroEstado = 'ativos'; // 'ativos' | 'passados' | 'todos'
+
+        // Classifica um projeto: 'passado' se data_fim < hoje, senão 'ativo'
+        function estadoProjeto(p) {
+            if (!p.data_fim) return 'ativo'; // sem data fim assume-se em curso
+            const fim = new Date(p.data_fim);
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            return fim < hoje ? 'passado' : 'ativo';
+        }
+
+        async function carregarProjetos() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+
+                let projetos = [];
+                if (Array.isArray(data)) projetos = data;
+                else if (data.projetos && Array.isArray(data.projetos)) projetos = data.projetos;
+                else if (data.data && Array.isArray(data.data)) projetos = data.data;
+                else console.error('Formato inesperado:', data);
+                projetos.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                projetosCompletos = projetos;
+                projetosFiltrados = [...projetosCompletos];
+                paginaAtual = 1;
+                aplicarPesquisa();
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('projetosContainer').innerHTML = `
+                    <div class="text-center text-[#ba1239] py-12 border-2 border-[#ba1239] bg-white">
+                        <i class="fas fa-exclamation-circle text-3xl mb-2"></i>
+                        <p>Erro ao carregar projetos: ${error.message}</p>
+                    </div>
+                `;
+                document.getElementById('paginationControls').innerHTML = '';
+            }
+        }
+
+        function aplicarPesquisa() {
+            const termo = document.getElementById('searchProjetos').value.trim().toLowerCase();
+            // 1) filtrar por estado
+            let base;
+            if (filtroEstado === 'ativos') base = projetosCompletos.filter(p => estadoProjeto(p) === 'ativo');
+            else if (filtroEstado === 'passados') base = projetosCompletos.filter(p => estadoProjeto(p) === 'passado');
+            else base = [...projetosCompletos];
+            // 2) filtrar por texto
+            if (termo === '') projetosFiltrados = base;
+            else projetosFiltrados = base.filter(p => p.titulo.toLowerCase().includes(termo));
+            paginaAtual = 1;
+            renderizarPagina();
+            atualizarContadores();
+        }
+
+        function atualizarContadores() {
+            const total = projetosCompletos.length;
+            const ativos = projetosCompletos.filter(p => estadoProjeto(p) === 'ativo').length;
+            const passados = projetosCompletos.filter(p => estadoProjeto(p) === 'passado').length;
+            document.querySelector('[data-count="ativos"]').textContent = `(${ativos})`;
+            document.querySelector('[data-count="passados"]').textContent = `(${passados})`;
+            document.querySelector('[data-count="todos"]').textContent = `(${total})`;
+        }
+
+        function renderizarPagina() {
+            const totalPaginas = Math.ceil(projetosFiltrados.length / itensPorPagina);
+            if (totalPaginas === 0) {
+                document.getElementById('projetosContainer').innerHTML = `
+                    <div class="text-center py-12 text-[#4946df] border-2 border-[#4946df] bg-[#e0def7]">
+                        <i class="fas fa-folder-open text-4xl mb-2"></i>
+                        <p class="text-lg font-semibold">Nenhum projeto encontrado</p>
+                    </div>
+                `;
+                document.getElementById('paginationControls').innerHTML = '';
+                return;
+            }
+
+            if (paginaAtual < 1) paginaAtual = 1;
+            if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+
+            const inicio = (paginaAtual - 1) * itensPorPagina;
+            const fim = inicio + itensPorPagina;
+            const projetosPagina = projetosFiltrados.slice(inicio, fim);
+
+            renderizarProjetos(projetosPagina);
+            renderizarPaginacao(totalPaginas);
+        }
+
+        function renderizarProjetos(projetos) {
+            const container = document.getElementById('projetosContainer');
+            if (!projetos || projetos.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-[#4946df]"><i class="fas fa-folder-open text-4xl mb-2 opacity-50"></i><p>Nenhum projeto encontrado</p></div>`;
+                return;
+            }
+
+            container.innerHTML = projetos.map(projeto => {
+                const estado = estadoProjeto(projeto);
+                const badgeClass = estado === 'passado'
+                    ? 'bg-gray-200 text-gray-700 border-gray-400'
+                    : 'bg-[#e0def7] text-[#4946df] border-[#4946df]';
+                const badgeLabel = estado === 'passado'
+                    ? '<i class="fas fa-history mr-1"></i>Passado'
+                    : '<i class="fas fa-play-circle mr-1"></i>Em curso/Futuro';
+                const datas = [];
+                if (projeto.data_inicio) datas.push(new Date(projeto.data_inicio).toLocaleDateString('pt-PT'));
+                if (projeto.data_fim) datas.push(new Date(projeto.data_fim).toLocaleDateString('pt-PT'));
+                const datasStr = datas.length ? datas.join(' — ') : 'Sem datas definidas';
+                return `
+                <div class="bg-white border-2 border-[#4946df] overflow-hidden event-card">
+                    <div class="md:flex">
+                        ${projeto.imagem_principal ?
+                            `<img src="${projeto.imagem_principal}" class="md:w-72 h-48 md:h-auto object-cover">` :
+                            `<div class="md:w-72 h-48 hero-gradient flex items-center justify-center">
+                                <i class="fas fa-project-diagram text-white text-5xl"></i>
+                            </div>`
+                        }
+                        <div class="p-6 flex-1">
+                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                <span class="border-2 ${badgeClass} px-2 py-1 text-xs font-semibold">${badgeLabel}</span>
+                                <span class="text-xs text-[#ba1239] font-semibold"><i class="far fa-calendar mr-1"></i>${datasStr}</span>
+                            </div>
+                            <h2 class="text-2xl font-bold text-[#4946df]">${escapeHtml(projeto.titulo)}</h2>
+                            <p class="text-[#ba1239] mt-1 italic">${escapeHtml(projeto.descricao_curta || '')}</p>
+                            <p class="text-black mt-4">${escapeHtml((projeto.descricao_completa || '').substring(0, 200))}...</p>
+                            <button onclick="abrirModalProjeto('${projeto._id}')"
+                                    class="mt-4 bg-[#4946df] text-white px-6 py-2 font-semibold hover:bg-[#ba1239] transition inline-flex items-center">
+                                Ver detalhes e eventos <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function renderizarPaginacao(totalPaginas) {
+            const controls = document.getElementById('paginationControls');
+            if (totalPaginas <= 1) {
+                controls.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button class="pag-prev pag-btn" ${paginaAtual === 1 ? 'disabled' : ''}>
+                    &laquo; Anterior
+                </button>
+            `;
+
+            let inicio = Math.max(1, paginaAtual - 2);
+            let fim = Math.min(totalPaginas, inicio + 4);
+            if (inicio > 1) html += `<span class="px-2 text-[#4946df]">...</span>`;
+            for (let i = inicio; i <= fim; i++) {
+                html += `<button class="pag-numero pag-btn ${i === paginaAtual ? 'active' : ''}" data-page="${i}">${i}</button>`;
+            }
+            if (fim < totalPaginas) html += `<span class="px-2 text-[#4946df]">...</span>`;
+
+            html += `
+                <button class="pag-next pag-btn" ${paginaAtual === totalPaginas ? 'disabled' : ''}>
+                    Próximo &raquo;
+                </button>
+            `;
+
+            controls.innerHTML = html;
+
+            controls.querySelectorAll('.pag-prev').forEach(btn => {
+                if (!btn.disabled) btn.addEventListener('click', () => { paginaAtual--; renderizarPagina(); });
+            });
+            controls.querySelectorAll('.pag-next').forEach(btn => {
+                if (!btn.disabled) btn.addEventListener('click', () => { paginaAtual++; renderizarPagina(); });
+            });
+            controls.querySelectorAll('.pag-numero').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    paginaAtual = parseInt(btn.dataset.page);
+                    renderizarPagina();
+                });
+            });
+        }
+
+        window.abrirModalProjeto = async function(projetoId) {
+            try {
+                const response = await fetch(`${API_URL}/${projetoId}`);
+                const data = await response.json();
+                const projeto = data.projeto;
+                const eventos = data.eventos || [];
+
+                document.getElementById('modalTitulo').innerHTML = escapeHtml(projeto.titulo);
+                let datasHtml = '';
+                if (projeto.data_inicio) datasHtml += `<i class="fas fa-calendar-alt mr-1"></i>Início: ${new Date(projeto.data_inicio).toLocaleDateString('pt-PT')}`;
+                if (projeto.data_fim) datasHtml += ` &middot; Fim: ${new Date(projeto.data_fim).toLocaleDateString('pt-PT')}`;
+                document.getElementById('modalDatas').innerHTML = datasHtml;
+
+                const imgDiv = document.getElementById('modalImagem');
+                if (projeto.imagem_principal) {
+                    imgDiv.querySelector('img').src = projeto.imagem_principal;
+                    imgDiv.classList.remove('hidden');
+                } else imgDiv.classList.add('hidden');
+
+                document.getElementById('modalDescricaoCurta').innerHTML = escapeHtml(projeto.descricao_curta || '');
+                document.getElementById('modalDescricaoCompleta').innerHTML = escapeHtml(projeto.descricao_completa || '');
+
+                const eventosDiv = document.getElementById('eventosList');
+                if (eventos.length) {
+                    eventosDiv.innerHTML = eventos.map(e => `
+                        <div class="border-2 border-[#4946df] p-3 hover:bg-[#e0def7] cursor-pointer transition" onclick="window.location.href='/frontend/eventos.html?id=${e._id}'">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-medium text-[#4946df]">${escapeHtml(e.titulo)}</p>
+                                    <p class="text-sm text-black"><i class="far fa-calendar mr-1"></i>${new Date(e.data_inicio).toLocaleDateString('pt-PT')}${e.local?.nome ? ` &middot; <i class="fas fa-map-marker-alt mr-1"></i>${escapeHtml(e.local.nome)}` : ''}</p>
+                                </div>
+                                <span class="text-[#ba1239] text-sm font-semibold">Ver evento →</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else eventosDiv.innerHTML = '<p class="text-black text-sm">Este projeto ainda não tem eventos associados.</p>';
+
+                const produtosDiv = document.getElementById('modalProdutos');
+                if (projeto.produtos && projeto.produtos.length) {
+                    produtosDiv.innerHTML = `
+                        <div class="mt-6"><h3 class="text-2xl font-bold text-[#4946df] mb-4">Produtos para compra</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            ${projeto.produtos.map(p => `
+                                <div class="border-2 border-[#4946df] p-4 hover:shadow-lg transition">
+                                    <img src="${p.capa || '/placeholder.jpg'}" class="w-full h-48 object-cover mb-3" onerror="this.src='/placeholder.jpg'">
+                                    <h4 class="text-xl font-bold text-[#4946df]">${escapeHtml(p.titulo)}</h4>
+                                    <p class="text-black text-sm mb-2">${escapeHtml(p.descricao)}</p>
+                                    <p class="text-2xl font-bold text-[#ba1239] mb-3">${p.preco}€</p>
+                                    <a href="${p.link_compra}" target="_blank" class="block text-center bg-[#4946df] text-white py-2 hover:bg-[#ba1239] transition font-semibold">Comprar agora</a>
+                                </div>
+                            `).join('')}
+                        </div></div>
+                    `;
+                    produtosDiv.classList.remove('hidden');
+                } else {
+                    produtosDiv.innerHTML = '';
+                    produtosDiv.classList.add('hidden');
+                }
+
+                document.getElementById('projetoModal').classList.remove('hidden');
+                document.getElementById('projetoModal').classList.add('flex');
+            } catch (error) {
+                console.error('Erro no modal:', error);
+                alert('Erro ao carregar detalhes do projeto');
+            }
+        };
+
+        window.fecharModalProjeto = function() {
+            document.getElementById('projetoModal').classList.add('hidden');
+            document.getElementById('projetoModal').classList.remove('flex');
+        };
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarProjetos();
+
+            // Listener das tabs (estado dos projetos)
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filtroEstado = btn.dataset.estado;
+                    // Atualizar título da secção
+                    const labels = { ativos: 'Em curso e Futuros', passados: 'Projetos Passados', todos: 'Todos os Projetos' };
+                    document.getElementById('projetosTitulo').textContent = labels[filtroEstado];
+                    aplicarPesquisa();
+                });
+            });
+
+            const searchInput = document.getElementById('searchProjetos');
+            const clearBtn = document.getElementById('clearSearch');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const termo = e.target.value;
+                    if (clearBtn) {
+                        if (termo.length > 0) clearBtn.classList.remove('hidden');
+                        else clearBtn.classList.add('hidden');
+                    }
+                    aplicarPesquisa();
+                });
+            }
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input'));
+                    clearBtn.classList.add('hidden');
+                });
+            }
+        });
+
+        document.getElementById('projetoModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('projetoModal')) fecharModalProjeto();
+        });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModalProjeto(); });
+    </script>
+</body>
+</html>

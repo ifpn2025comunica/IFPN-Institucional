@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancelar Newsletter - IFPN</title>
+    <link rel="icon" type="image/png" href="/assets/images/imgPLF.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div id="header-placeholder"></div>
+
+    <section class="pt-32 pb-20">
+        <div class="max-w-md mx-auto px-4">
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-envelope-open-text text-3xl text-red-600"></i>
+                </div>
+                
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Cancelar Notificações</h1>
+                <p class="text-gray-600 mb-6">
+                    Introduza o seu email para cancelar a subscrição do boletim informativo.
+                </p>
+                
+                <form id="cancelForm" class="space-y-4">
+                    <div>
+                        <input type="email" id="email" placeholder="O seu email *" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition">
+                        <i class="fas fa-trash-alt mr-2"></i>Cancelar Subscrição
+                    </button>
+                </form>
+                
+                <div id="message" class="mt-4 text-sm hidden"></div>
+                
+                <hr class="my-6">
+                
+                <p class="text-sm text-gray-500">
+                    <i class="fas fa-arrow-left mr-1"></i>
+                    <a href="/frontend/index.html" class="text-indigo-600 hover:text-indigo-800">Voltar para o site</a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="/js/include.js"></script>
+    <script>
+        document.getElementById('cancelForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const messageDiv = document.getElementById('message');
+            
+            // Desabilitar botão durante o processo
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>A processar...';
+            
+            try {
+                const response = await fetch('https://ifpn-public.onrender.com/api/newsletter/unsubscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    messageDiv.className = 'mt-4 p-3 bg-green-100 text-green-700 rounded-lg text-sm';
+                    messageDiv.innerHTML = '<i class="fas fa-check-circle mr-2"></i>' + data.message;
+                    document.getElementById('email').value = '';
+                } else {
+                    messageDiv.className = 'mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm';
+                    messageDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>' + data.error;
+                }
+                messageDiv.classList.remove('hidden');
+                
+            } catch (error) {
+                messageDiv.className = 'mt-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm';
+                messageDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Erro ao cancelar subscrição';
+                messageDiv.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-trash-alt mr-2"></i>Cancelar Subscrição';
+            }
+        });
+    </script>
+</body>
+</html>

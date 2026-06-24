@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquivo de Vídeos - IFPN</title>
+    <link rel="icon" type="image/png" href="/assets/images/imgPLF.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #423ea3 0%, #ba1239 100%);
+        }
+
+        .video-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .video-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+
+        .pag-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #4946df;
+            background-color: #ffffff;
+            color: #4946df;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        .pag-btn:hover:not(:disabled) {
+            background-color: #4946df;
+            color: #ffffff;
+        }
+        .pag-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .pag-btn.active { background-color: #4946df; color: #ffffff; }
+    </style>
+</head>
+<body class="bg-white">
+
+    <!-- HEADER -->
+    <div id="header-placeholder"></div>
+
+    <!-- Hero Section -->
+    <section class="max-w-7xl mx-auto text-white bg-[url('/frontend/assets/images/hero.png')] bg-cover bg-center mt-6 mb-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center" style="height: 150px;">
+                <div class="hidden md:block"></div>
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-bold leading-tight text-[#4946df] mb-6 text-right">
+                        Arquivo de Vídeos
+                    </h1>
+                    <p class="text-xl mb-8 text-black text-right">
+                        Todos os vídeos publicados pelo IFPN.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Barra de pesquisa -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3">
+            <div class="px-4 py-6 flex justify-center">
+                <div class="relative w-full max-w-2xl">
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-[#4946df]"></i>
+                    <input type="text" id="searchVideos" placeholder="Pesquisar vídeos por título..."
+                           class="w-full pl-12 pr-12 py-3 border-2 border-[#4946df] focus:outline-none focus:ring-2 focus:ring-[#ba1239]">
+                    <button id="clearSearch" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#4946df] hover:text-[#ba1239] hidden">
+                        <i class="fas fa-times-circle text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3"></div>
+
+    <!-- Lista de vídeos -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex text-left mb-3 w-full px-4 py-2 border-b-4 border-[#4946df] items-center gap-3">
+                <h1 class="text-5xl font-bold text-[#4946df] pt-5">Todos os Vídeos</h1>
+            </div>
+
+            <div id="totalCount" class="text-right px-4 py-2 text-[#4946df] text-sm font-semibold"></div>
+
+            <div id="videosGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 px-4 py-6">
+                <div class="col-span-3 text-center py-12 text-[#4946df]">
+                    <i class="fas fa-spinner fa-spin text-3xl"></i>
+                    <p class="mt-2">Carregando vídeos...</p>
+                </div>
+            </div>
+
+            <div id="pagination" class="flex justify-center items-center gap-2 flex-wrap py-8"></div>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3"></div>
+    <div class="max-w-7xl mx-auto overflow-hidden mt-10 mb-10" style="height: 100px;">
+        <img src="/frontend/assets/images/separador-01.png"
+             alt=""
+             class="w-full h-full object-cover object-center">
+    </div>
+
+    <!-- Voltar ao início -->
+    <section class="bg-white">
+        <div class="max-w-7xl mx-auto text-center px-4 py-6">
+            <a href="/frontend/index.html" class="inline-flex items-center bg-[#4946df] text-white px-10 py-4 font-semibold hover:bg-[#ba1239] transition">
+                <i class="fas fa-arrow-left mr-2"></i>Voltar à Página Inicial
+            </a>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto border-t-2 border-[#4946df] mt-1 mb-1"></div>
+    <div class="max-w-7xl mx-auto overflow-hidden mt-10 mb-10" style="height: 100px;">
+        <img src="/frontend/assets/images/separador-01.png"
+             alt=""
+             class="w-full h-full object-cover object-center">
+    </div>
+
+    <!-- ========== MODAL DE VÍDEO ========== -->
+    <div id="videoModal" class="fixed inset-0 bg-black bg-opacity-70 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white max-w-4xl w-full max-h-[90vh] overflow-y-auto border-2 border-[#4946df]">
+            <div class="sticky top-0 bg-white border-b-4 border-[#4946df] p-4 flex justify-between items-center z-10">
+                <h2 id="modalTitulo" class="text-2xl font-bold text-[#4946df]">-</h2>
+                <button onclick="fecharVideo()" class="text-[#4946df] hover:text-[#ba1239]">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="modalPlayer" class="aspect-video bg-black mb-4"></div>
+                <div id="modalDescricao" class="text-black"></div>
+                <div id="modalLinkExterno" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div id="footer-placeholder"></div>
+
+    <script src="/frontend/js/include.js"></script>
+    <script>
+        const API_CONFIG = 'https://ifpn-public.onrender.com/api/configuracoes';
+        let todosVideos = [];
+        let videosFiltrados = [];
+        let paginaAtual = 1;
+        const itensPorPagina = 9;
+
+        function extractVideoId(url) {
+            if (!url || typeof url !== 'string') return null;
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})(?:[&?]|$)/,
+                /^([a-zA-Z0-9_-]{11})$/
+            ];
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) return match[1];
+            }
+            return null;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, (m) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[m]));
+        }
+
+        async function carregarVideos() {
+            try {
+                const resp = await fetch(API_CONFIG);
+                if (!resp.ok) throw new Error('Erro a obter configurações');
+                const config = await resp.json();
+                // Ordenar do mais recente para o mais antigo (ordem decrescente)
+                const lista = (config.videos_arquivo || [])
+                    .filter(v => v.link && v.link.trim() !== '')
+                    .sort((a, b) => (b.ordem || 0) - (a.ordem || 0));
+                todosVideos = lista;
+                videosFiltrados = [...todosVideos];
+                paginaAtual = 1;
+                renderPagina();
+            } catch (err) {
+                console.error(err);
+                document.getElementById('videosGrid').innerHTML = `
+                    <div class="col-span-3 text-center py-12 text-[#ba1239] border-2 border-[#ba1239]">
+                        <i class="fas fa-exclamation-circle text-3xl mb-2"></i>
+                        <p>Erro ao carregar vídeos.</p>
+                        <button onclick="carregarVideos()" class="mt-3 bg-[#4946df] text-white px-4 py-2 hover:bg-[#ba1239] transition">Tentar novamente</button>
+                    </div>
+                `;
+                document.getElementById('pagination').innerHTML = '';
+                document.getElementById('totalCount').textContent = '';
+            }
+        }
+
+        function aplicarPesquisa() {
+            const termo = document.getElementById('searchVideos').value.trim().toLowerCase();
+            if (termo === '') {
+                videosFiltrados = [...todosVideos];
+            } else {
+                videosFiltrados = todosVideos.filter(v =>
+                    (v.titulo || '').toLowerCase().includes(termo) ||
+                    (v.descricao || '').toLowerCase().includes(termo)
+                );
+            }
+            paginaAtual = 1;
+            renderPagina();
+        }
+
+        function renderPagina() {
+            const total = videosFiltrados.length;
+            const totalPaginas = Math.ceil(total / itensPorPagina);
+            document.getElementById('totalCount').textContent = total > 0
+                ? `${total} vídeo${total !== 1 ? 's' : ''} encontrado${total !== 1 ? 's' : ''}`
+                : '';
+
+            if (total === 0) {
+                document.getElementById('videosGrid').innerHTML = `
+                    <div class="col-span-3 text-center py-12 text-[#4946df] border-2 border-[#4946df] bg-[#e0def7]">
+                        <i class="fas fa-video-slash text-4xl mb-2"></i>
+                        <p class="text-lg font-semibold">Nenhum vídeo encontrado</p>
+                    </div>
+                `;
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            if (paginaAtual < 1) paginaAtual = 1;
+            if (paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+
+            const inicio = (paginaAtual - 1) * itensPorPagina;
+            const videosPagina = videosFiltrados.slice(inicio, inicio + itensPorPagina);
+
+            document.getElementById('videosGrid').innerHTML = videosPagina.map((v, i) => {
+                const videoId = extractVideoId(v.link);
+                const thumbnail = v.thumbnail || (videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : '');
+                const isYouTube = videoId !== null;
+                const idxGlobal = todosVideos.indexOf(v);
+                return `
+                    <div class="bg-white border-2 border-[#4946df] overflow-hidden video-card cursor-pointer" onclick="abrirVideo(${idxGlobal})">
+                        ${thumbnail
+                            ? `<div class="relative w-full h-48 bg-black overflow-hidden">
+                                   <img src="${thumbnail}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x225/4946df/ffffff?text=IFPN'">
+                                   <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                                       <i class="fas fa-play-circle text-white text-5xl drop-shadow-lg"></i>
+                                   </div>
+                               </div>`
+                            : `<div class="w-full h-48 hero-gradient flex items-center justify-center"><i class="fas fa-film text-white text-5xl"></i></div>`
+                        }
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg text-[#4946df] mb-2 line-clamp-2">${escapeHtml(v.titulo || (isYouTube ? 'Vídeo do YouTube' : 'Vídeo'))}</h3>
+                            ${v.descricao ? `<p class="text-black text-sm mb-3">${escapeHtml(v.descricao.substring(0, 100))}${v.descricao.length > 100 ? '...' : ''}</p>` : ''}
+                            <div class="flex items-center justify-between pt-2 border-t-2 border-[#e0def7]">
+                                <span class="text-xs text-[#ba1239] font-semibold">
+                                    <i class="fas ${isYouTube ? 'fa-youtube' : 'fa-external-link-alt'} mr-1"></i>${isYouTube ? 'YouTube' : 'Externo'}
+                                </span>
+                                <span class="text-xs text-[#4946df] font-semibold">Ver vídeo →</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            renderPaginacao(totalPaginas);
+        }
+
+        function renderPaginacao(totalPaginas) {
+            const pag = document.getElementById('pagination');
+            if (totalPaginas <= 1) {
+                pag.innerHTML = '';
+                return;
+            }
+            let html = `<button class="pag-btn" ${paginaAtual === 1 ? 'disabled' : ''} onclick="mudarPagina(${paginaAtual - 1})"><i class="fas fa-chevron-left"></i></button>`;
+            const inicio = Math.max(1, paginaAtual - 2);
+            const fim = Math.min(totalPaginas, inicio + 4);
+            if (inicio > 1) html += `<span class="px-2 text-[#4946df]">...</span>`;
+            for (let i = inicio; i <= fim; i++) {
+                html += `<button class="pag-btn ${i === paginaAtual ? 'active' : ''}" onclick="mudarPagina(${i})">${i}</button>`;
+            }
+            if (fim < totalPaginas) html += `<span class="px-2 text-[#4946df]">...</span>`;
+            html += `<button class="pag-btn" ${paginaAtual === totalPaginas ? 'disabled' : ''} onclick="mudarPagina(${paginaAtual + 1})"><i class="fas fa-chevron-right"></i></button>`;
+            pag.innerHTML = html;
+        }
+
+        function mudarPagina(p) {
+            const totalPaginas = Math.ceil(videosFiltrados.length / itensPorPagina);
+            if (p < 1 || p > totalPaginas) return;
+            paginaAtual = p;
+            renderPagina();
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
+
+        // Modal de vídeo
+        window.abrirVideo = function(idx) {
+            const v = todosVideos[idx];
+            if (!v) return;
+            document.getElementById('modalTitulo').textContent = v.titulo || 'Vídeo';
+            const videoId = extractVideoId(v.link);
+            const player = document.getElementById('modalPlayer');
+            if (videoId) {
+                player.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            } else {
+                player.innerHTML = `<div class="w-full h-full flex items-center justify-center text-white"><div class="text-center"><i class="fas fa-external-link-alt text-5xl mb-3"></i><p>Conteúdo externo — abra no botão abaixo</p></div></div>`;
+            }
+            document.getElementById('modalDescricao').textContent = v.descricao || '';
+            document.getElementById('modalLinkExterno').innerHTML = `
+                <a href="${v.link}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center bg-[#4946df] text-white px-6 py-3 font-semibold hover:bg-[#ba1239] transition">
+                    <i class="fas ${videoId ? 'fa-youtube' : 'fa-external-link-alt'} mr-2"></i>Abrir no ${videoId ? 'YouTube' : 'site original'}
+                </a>
+            `;
+            document.getElementById('videoModal').classList.remove('hidden');
+            document.getElementById('videoModal').classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.fecharVideo = function() {
+            document.getElementById('modalPlayer').innerHTML = ''; // parar reprodução
+            document.getElementById('videoModal').classList.add('hidden');
+            document.getElementById('videoModal').classList.remove('flex');
+            document.body.style.overflow = '';
+        };
+
+        document.getElementById('videoModal').addEventListener('click', (e) => {
+            if (e.target.id === 'videoModal') fecharVideo();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !document.getElementById('videoModal').classList.contains('hidden')) {
+                fecharVideo();
+            }
+        });
+
+        // Pesquisa
+        const searchInput = document.getElementById('searchVideos');
+        const clearBtn = document.getElementById('clearSearch');
+        searchInput.addEventListener('input', () => {
+            if (searchInput.value.length > 0) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+            aplicarPesquisa();
+        });
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            clearBtn.classList.add('hidden');
+            aplicarPesquisa();
+        });
+
+        carregarVideos();
+    </script>
+</body>
+</html>
