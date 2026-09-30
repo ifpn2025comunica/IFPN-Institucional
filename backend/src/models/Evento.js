@@ -27,10 +27,14 @@ const EventoSchema = new mongoose.Schema({
     
     data_inicio: {
         type: Date,
-        required: [true, 'Data de início é obrigatória']
+        required: false,
+        set: v => (v === '' ? null : v)
     },
-    
-    data_fim: Date,
+
+    data_fim: {
+        type: Date,
+        set: v => (v === '' ? null : v)
+    },
     
     local: {
         nome: String,
