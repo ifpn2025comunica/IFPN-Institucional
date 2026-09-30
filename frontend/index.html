@@ -98,9 +98,13 @@
     <!-- Estatísticas Dinâmicas -->
     <section class="bg-white max-w-7xl mx-auto">
         <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-2 md:grid-cols-4 text-center">
-                <div class="bg-[#e0def7] border-2 border-[#4946df] p-6 hover:shadow-lg transition">
+            <div class="grid grid-cols-2 text-center w-full">
+                <div class="bg-[#e0def7] border-2 border-[#4946df] p-6 hover:shadow-lg transition flex flex-col justify-center items-center">
+                    <!--
                     <div class="text-4xl font-bold text-[#4946df] mb-2" id="totalAssociados">0</div>
+                    <div class="text-black text-xl">Associados</div>
+                    -->
+                    <div class="text-4xl font-bold text-[#4946df] mb-2">250</div>
                     <div class="text-black text-xl">Associados</div>
                 </div>
                 <!--
@@ -113,9 +117,12 @@
                     <div class="text-black text-xl">Notícias</div>
                 </div>
                 -->
-                <div class="bg-[#e0def7] border-2 border-[#4946df] p-6 hover:shadow-lg transition">
+                <div class="bg-[#e0def7] border-2 border-[#4946df] p-6 hover:shadow-lg transition flex flex-col justify-center items-center">
+                    <!--
                     <div class="text-4xl font-bold text-[#4946df] mb-2" id="totalEventosAno">0</div>
-                    <div class="text-black text-xl">Eventos/Ano</div>
+                    -->
+                    <div class="text-4xl font-bold text-[#4946df] mb-2">17</div>
+                    <div class="text-black text-xl">Eventos</div>
                 </div>
             </div>
         </div>
@@ -462,6 +469,7 @@
         
         // Carregar estatísticas
         async function carregarEstatisticas() {
+            /*
             try {
                 const response = await fetch('https://ifpn-institucional-backend.onrender.com/api/estatisticas/tudo');
                 const data = await response.json();
@@ -476,6 +484,7 @@
                 document.getElementById('totalNoticias').textContent = '0';
                 document.getElementById('totalEventosAno').textContent = '0';
             }
+                */
         }
         
         // Newsletter
