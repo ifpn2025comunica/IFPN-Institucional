@@ -102,8 +102,8 @@
                 <div class="bg-[#e0def7] border-2 border-[#4946df] p-6 hover:shadow-lg transition">
                     <div class="text-4xl font-bold text-[#4946df] mb-2" id="totalAssociados">0</div>
                     <div class="text-black text-xl">Associados</div>
-                <!--
                 </div>
+                <!--
                 <div class="bg-[#e0def7] border-2 border-[#4946df] p-6 hover:shadow-lg transition">
                     <div class="text-4xl font-bold text-[#4946df] mb-2" id="totalProjetos">0</div>
                     <div class="text-black text-xl">Projetos Realizados</div>
@@ -193,7 +193,8 @@
                             <span class="bg-[#e0def7] text-[#4946df] border border-[#4946df] px-3 py-1 font-semibold"><i class="fas fa-comments mr-1"></i>Partilhar</span>
                         </div>
 
-                        <a href="https://dev-cadernos-ifpn.pantheonsite.io/" target="_blank" rel="noopener noreferrer"
+                        <!-- <a href="https://dev-cadernos-ifpn.pantheonsite.io/" target="_blank" rel="noopener noreferrer" -->
+                        <a href="https://www.fernandopaulouro.com/" target="_blank" rel="noopener noreferrer"
                            class="inline-flex items-center bg-[#4946df] text-white px-8 py-4 font-semibold text-lg hover:bg-[#ba1239] transition">
                             <i class="fas fa-arrow-right mr-2"></i>
                             Entrar nos Cadernos
@@ -439,7 +440,7 @@
                     <div class="relative bg-white shadow-lg overflow-hidden hover:shadow-xl transition cursor-pointer
                     border-2 border-[#4946df] " onclick="abrirNoticia('${noticia._id}')">
                         ${noticia.imagem_destaque ? `
-                        <div class="text-sm text-black m-4">${noticia.data_publicacao ? new Date(noticia.data_publicacao).toLocaleDateString('pt-PT') : 'Data não definida'}</div>
+                        <div class="text-sm text-black m-4">${noticia.data_publicacao ? new Date(noticia.data_publicacao).toLocaleDateString('pt-PT') : 'Data Não Definida'}</div>
                         <h3 class="text-xl text-[#ba1239] font-semibold m-4">${noticia.titulo || 'Sem título'}</h3>
                         <img src="${noticia.imagem_destaque}" alt="${noticia.titulo}" class="w-full h-48 object-cover">` : `<div class="w-full h-48 bg-gradient-to-r from-[#423ea3] to-[#ba1239] flex items-center justify-center"><i class="fas fa-newspaper text-white text-4xl"></i></div>`}
                         <div class="p-6">
