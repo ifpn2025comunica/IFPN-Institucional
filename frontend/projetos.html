@@ -66,7 +66,7 @@
     <div id="header-placeholder"></div>
 
     <!-- Hero Section -->
-    <section class="max-w-7xl mx-auto text-white bg-[url('/frontend/assets/images/hero.png')] bg-cover bg-center mt-6 mb-6">
+    <section class="max-w-7xl mx-auto text-white bg-[url('/assets/images/hero.png')] bg-cover bg-center mt-6 mb-6">
         <div class="max-w-7xl mx-auto">
             <div class="grid md:grid-cols-2 gap-12 items-center" style="height: 150px;">
                 <div class="hidden md:block"></div>
@@ -141,7 +141,7 @@
 
     <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3"></div>
     <div class="max-w-7xl mx-auto overflow-hidden mt-10 mb-10" style="height: 100px;">
-        <img src="/frontend/assets/images/separador-01.png"
+        <img src="/assets/images/separador-01.png"
              alt=""
              class="w-full h-full object-cover object-center">
     </div>
@@ -172,7 +172,7 @@
         </div>
     </div>
 
-    <script src="/frontend/js/include.js"></script>
+    <script src="/js/include.js"></script>
     <script>
         const API_URL = 'https://ifpn-institucional-backend.onrender.com/api/projetos';
         let projetosCompletos = [];
@@ -381,7 +381,7 @@
                 const eventosDiv = document.getElementById('eventosList');
                 if (eventos.length) {
                     eventosDiv.innerHTML = eventos.map(e => `
-                        <div class="border-2 border-[#4946df] p-3 hover:bg-[#e0def7] cursor-pointer transition" onclick="window.location.href='/frontend/eventos.html?id=${e._id}'">
+                        <div class="border-2 border-[#4946df] p-3 hover:bg-[#e0def7] cursor-pointer transition" onclick="window.location.href='/eventos.html?id=${e._id}'">
                             <div class="flex justify-between items-center">
                                 <div>
                                     <p class="font-medium text-[#4946df]">${escapeHtml(e.titulo)}</p>

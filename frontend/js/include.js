@@ -1,9 +1,20 @@
+// Base dos caminhos: funciona tanto com o site em /... (Render antigo)
+// como com o Publish Directory definido como "frontend" (ifpn.pt na raiz).
+const BASE = window.location.pathname.startsWith('/') ? '/frontend' : '';
+
 // Função para carregar componentes HTML
 async function loadComponent(elementId, componentPath) {
+    const placeholder = document.getElementById(elementId);
+
+    // Se a página não tem este placeholder (ex.: login.html), não faz nada
+    if (!placeholder) return;
+
     try {
         const response = await fetch(componentPath);
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status + ' ao carregar ' + componentPath);
+        }
         const html = await response.text();
-        const placeholder = document.getElementById(elementId);
         placeholder.innerHTML = html;
 
         // Se for o header, mover a navbar para fora do placeholder
@@ -64,19 +75,24 @@ function initHeaderScripts() {
     // Verificar se usuário está logado
     const token = localStorage.getItem('token');
     if (token && authButton && authDropdown) {
-        const associado = JSON.parse(localStorage.getItem('associado') || '{}');
+        let associado = {};
+        try {
+            associado = JSON.parse(localStorage.getItem('associado') || '{}');
+        } catch (e) {
+            associado = {};
+        }
         authButton.innerHTML = '<i class="fas fa-user-circle mr-2"></i>' + (associado.nome || 'Minha Conta');
-        
+
         if (associado.role === 'admin') {
             authDropdown.innerHTML = `
-                <a href="/frontend/admin/index.html" class="block px-4 py-2 text-gray-800 hover:bg-indigo-50">Painel Admin</a>
-                <a href="/frontend/area-cliente/dashboard.html" class="block px-4 py-2 text-gray-800 hover:bg-indigo-50">Dashboard</a>
-                <a href="/frontend/index.html" onclick="logout()" class="block px-4 py-2 text-red-600 hover:bg-red-50">Sair</a>
+                <a href="${BASE}/admin/index.html" class="block px-4 py-2 text-gray-800 hover:bg-indigo-50">Painel Admin</a>
+                <a href="${BASE}/area-cliente/dashboard.html" class="block px-4 py-2 text-gray-800 hover:bg-indigo-50">Dashboard</a>
+                <a href="${BASE}/index.html" onclick="logout()" class="block px-4 py-2 text-red-600 hover:bg-red-50">Sair</a>
             `;
         } else {
             authDropdown.innerHTML = `
-                <a href="/frontend/area-cliente/dashboard.html" class="block px-4 py-2 text-gray-800 hover:bg-indigo-50">Dashboard</a>
-                <a href="/frontend/index.html" onclick="logout()" class="block px-4 py-2 text-red-600 hover:bg-red-50">Sair</a>
+                <a href="${BASE}/area-cliente/dashboard.html" class="block px-4 py-2 text-gray-800 hover:bg-indigo-50">Dashboard</a>
+                <a href="${BASE}/index.html" onclick="logout()" class="block px-4 py-2 text-red-600 hover:bg-red-50">Sair</a>
             `;
         }
     }
@@ -86,11 +102,11 @@ function initHeaderScripts() {
 window.logout = function() {
     localStorage.removeItem('token');
     localStorage.removeItem('associado');
-    window.location.href = '/';
+    window.location.href = BASE + '/index.html';
 };
 
 // Carregar componentes quando a página carregar
 document.addEventListener('DOMContentLoaded', () => {
-    loadComponent('header-placeholder', '/frontend/components/header.html');
-    loadComponent('footer-placeholder', '/frontend/components/footer.html');
+    loadComponent('header-placeholder', BASE + '/components/header.html');
+    loadComponent('footer-placeholder', BASE + '/components/footer.html');
 });

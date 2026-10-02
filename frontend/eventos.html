@@ -53,7 +53,7 @@
     <div id="header-placeholder"></div>
 
     <!-- Hero Section -->
-    <section class="max-w-7xl mx-auto text-white bg-[url('/frontend/assets/images/hero.png')] bg-cover bg-center mt-6 mb-6">
+    <section class="max-w-7xl mx-auto text-white bg-[url('/assets/images/hero.png')] bg-cover bg-center mt-6 mb-6">
         <div class="max-w-7xl mx-auto">
             <div class="grid md:grid-cols-2 gap-12 items-center" style="height: 150px;">
                 <div class="hidden md:block"></div>
@@ -159,7 +159,7 @@
 
     <div class="max-w-7xl mx-auto border-t-4 border-[#4946df] mb-3"></div>
     <div class="max-w-7xl mx-auto overflow-hidden mt-10 mb-10" style="height: 100px;">
-        <img src="/frontend/assets/images/separador-01.png"
+        <img src="/assets/images/separador-01.png"
              alt=""
              class="w-full h-full object-cover object-center">
     </div>
@@ -210,7 +210,7 @@
 
     <div class="max-w-7xl mx-auto border-t-2 border-[#4946df] mt-1 mb-1"></div>
     <div class="max-w-7xl mx-auto overflow-hidden mt-10 mb-10" style="height: 100px;">
-        <img src="/frontend/assets/images/separador-01.png"
+        <img src="/assets/images/separador-01.png"
              alt=""
              class="w-full h-full object-cover object-center">
     </div>
@@ -241,7 +241,7 @@
         </div>
     </div>
 
-    <script src="/frontend/js/include.js"></script>
+    <script src="/js/include.js"></script>
     <script>
         const API_URL = 'https://ifpn-institucional-backend.onrender.com/api/eventos';
         let todosEventos = [];
@@ -456,7 +456,7 @@
         function partilharEvento() { navigator.clipboard.writeText(window.location.href); alert('Link copiado!'); }
         document.getElementById('btnInscrever').onclick = async function() {
             const token = localStorage.getItem('token');
-            if(!token) { if(confirm('Para se inscrever precisa de fazer login. Deseja ir para o login?')) window.location.href='/frontend/area-cliente/login.html'; return; }
+            if(!token) { if(confirm('Para se inscrever precisa de fazer login. Deseja ir para o login?')) window.location.href='/area-cliente/login.html'; return; }
             const eventoId = document.getElementById('eventoModal').dataset.eventoId;
             try {
                 const resp = await fetch(`${API_URL}/${eventoId}/inscrever`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });

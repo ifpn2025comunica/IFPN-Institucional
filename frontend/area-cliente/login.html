@@ -14,8 +14,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-37">
                 <div class="flex items-center">
-                    <a href="/frontend/index.html" class="flex items-center space-x-2">
-                        <img src="/frontend/assets/images/imgPLF.png" alt="Logótipo IFPN" class="h-36 w-auto">
+                    <a href="/index.html" class="flex items-center space-x-2">
+                        <img src="/assets/images/imgPLF.png" alt="Logótipo IFPN" class="h-36 w-auto">
                         <span class="font-semibold text-gray-800">Início</span>
                     </a>
                 </div>
@@ -63,7 +63,7 @@
                     </div>
 
                     <div class="text-sm">
-                        <a href="/frontend/contato.html" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        <a href="/contato.html" class="font-medium text-indigo-600 hover:text-indigo-500">
                             Esqueceu-se da password?
                         </a>
                     </div>
@@ -79,7 +79,7 @@
                 <div class="text-center">
                     <p class="text-sm text-gray-600">
                         Ainda não é associado? 
-                        <a href="/frontend/contato.html" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        <a href="/contato.html" class="font-medium text-indigo-600 hover:text-indigo-500">
                             Contacte-nos para aderir
                         </a>
                     </p>
@@ -92,7 +92,7 @@
     <!-- FOOTER (carregado automaticamente) -->
     <div id="footer-placeholder"></div>
 
-    <script src="/frontend/js/include.js"></script>
+    <script src="/js/include.js"></script>
 
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -118,9 +118,9 @@
                     localStorage.setItem('associado', JSON.stringify(data.associado));
                     
                     if (data.associado.role === 'admin') {
-                        window.location.href = '/frontend/admin/index.html';  
+                        window.location.href = '/admin/index.html';  
                     } else {
-                        window.location.href = '/frontend/area-cliente/dashboard.html';  
+                        window.location.href = '/area-cliente/dashboard.html';  
                     }
                 } else {
                     // Mostrar erro

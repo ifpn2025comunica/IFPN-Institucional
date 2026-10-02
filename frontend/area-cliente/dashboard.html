@@ -28,8 +28,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-4">
-                    <a href="/frontend/index.html" class="flex items-center">
-                        <img src="/frontend/assets/images/logo.png" alt="Logo IFPN" class="h-12 w-auto">
+                    <a href="/index.html" class="flex items-center">
+                        <img src="/assets/images/logo.png" alt="Logo IFPN" class="h-12 w-auto">
                     </a>
                     <div class="h-8 w-px bg-gray-300"></div>
                     <span class="font-semibold text-gray-700">Área do Associado</span>
@@ -310,7 +310,7 @@
 
         // Verificar autenticação
         if (!token) {
-            window.location.href = '/frontend/area-cliente/login.html';
+            window.location.href = '/area-cliente/login.html';
         }
 
         // Atualizar informações do associado
@@ -550,7 +550,7 @@ document.getElementById('formEditarPerfil').addEventListener('submit', async (e)
             
             alert('Password alterada com sucesso! Por favor, faça login novamente.');
             localStorage.clear();
-            window.location.href = '/frontend/area-cliente/login.html';
+            window.location.href = '/area-cliente/login.html';
             return;
         }
         
@@ -645,7 +645,7 @@ document.getElementById('formEditarPerfil').addEventListener('submit', async (e)
                         <div class="text-center py-8 bg-gray-50 rounded-xl">
                             <i class="fas fa-calendar-times text-4xl text-gray-300 mb-3"></i>
                             <p class="text-gray-500">Você ainda não está inscrito em nenhum evento.</p>
-                            <a href="/frontend/eventos.html" class="inline-block mt-3 text-indigo-600 hover:text-indigo-800">Explorar eventos →</a>
+                            <a href="/eventos.html" class="inline-block mt-3 text-indigo-600 hover:text-indigo-800">Explorar eventos →</a>
                         </div>
                     `;
                     return;
@@ -726,7 +726,7 @@ document.getElementById('formEditarPerfil').addEventListener('submit', async (e)
         }
 
         function verDetalhesEvento(id) {
-            window.location.href = `/frontend/eventos.html?id=${id}`;
+            window.location.href = `/eventos.html?id=${id}`;
         }
 
         async function cancelarInscricaoModal(eventoId) {
@@ -751,7 +751,7 @@ document.getElementById('formEditarPerfil').addEventListener('submit', async (e)
         function logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('associado');
-            window.location.href = '/frontend/index.html';
+            window.location.href = '/index.html';
         }
 
         // Inicializar
